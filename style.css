@@ -1,0 +1,143 @@
+/* css/style.css */
+:root {
+    --bg-dark: #07070c;
+    --glass-bg: rgba(15, 15, 25, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --accent-cyan: #00d4ff;
+    --accent-purple: #7b68ee;
+    --accent-red: #ff6b6b;
+    --text-light: #f0f0f5;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    font-family: 'Inter', 'Cairo', sans-serif;
+    color: var(--text-light);
+}
+
+#canvas-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* Glassmorphism General Panel Layout / التصميم العام للألواح الزجاجية */
+.panel {
+    position: absolute;
+    top: 20px;
+    bottom: 20px;
+    width: 320px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    z-index: 10;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.left-panel { left: 20px; }
+.right-panel { right: 20px; }
+
+/* Slide Animation Collapses / تأثيرات الانزلاق الجانبي للاختفاء */
+.left-panel.collapsed { transform: translateX(-340px); }
+.right-panel.collapsed { transform: translateX(340px); }
+
+.panel-content {
+    padding: 20px;
+    height: calc(100% - 40px);
+    overflow-y: auto;
+}
+
+h2 {
+    font-size: 1.2rem;
+    margin-top: 0;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 8px;
+    color: var(--accent-cyan);
+}
+
+/* Bi-lingual support handling tags / إعدادات تبديل اللغات */
+.lang-ar { direction: rtl; text-align: right; display: block; font-size: 0.9rem; font-family: 'Cairo'; }
+.lang-en { direction: ltr; text-align: left; display: block; font-size: 0.95rem; }
+
+.toggle-btn {
+    position: absolute;
+    top: 20px;
+    width: 40px;
+    height: 40px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+}
+.left-panel .toggle-btn { right: -50px; }
+.right-panel .toggle-btn { left: -50px; }
+
+/* Control Widgets / عناصر التحكم الداخلية */
+.control-group {
+    margin-bottom: 20px;
+}
+label {
+    font-size: 0.85rem;
+    color: #aaa;
+    display: block;
+    margin-bottom: 6px;
+}
+input[type="range"], select {
+    width: 100%;
+    background: rgba(25,25,40,0.8);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, var(--accent-purple), #5a49cc);
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 10px;
+}
+.action-btn:hover { opacity: 0.9; }
+
+.btn-row { display: flex; gap: 10px; }
+
+/* Analytics Dynamic Bars / خطوط الرسوم البيانية داخل لوحة التحليلات */
+.ball-data-item {
+    background: rgba(255,255,255,0.03);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,0.02);
+}
+.ball-data-item h4 { margin: 0 0 8px 0; color: #fff; font-size: 0.9rem; }
+.ball-data-item p { margin: 4px 0; font-size: 0.8rem; color: #ccc; }
+
+.bar-chart-bg {
+    width: 100%;
+    height: 6px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 3px;
+    margin-bottom: 4px;
+    overflow: hidden;
+}
+.bar-fill { height: 100%; width: 0%; transition: width 0.1s ease; }
+.ke-fill { background: var(--accent-cyan); }
+.pe-fill { background: var(--accent-purple); }
