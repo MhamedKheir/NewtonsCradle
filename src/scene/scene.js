@@ -1,6 +1,5 @@
 // src/scene/scene.js
 
-// 🆕 أضف هذين السطرين
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Config } from '../config/config.js';
@@ -28,10 +27,19 @@ export class SceneSetup {
         this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Shadows
         this.renderer.shadowMap.enabled = Config.environment.shadowsEnabled;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        // Color/Tone
+        this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 1.1;
+        this.renderer.toneMappingExposure = 0.95;
+
+        // Physically correct lighting
+        this.renderer.physicallyCorrectLights = true;
+
         this.container.appendChild(this.renderer.domElement);
     }
 
@@ -47,7 +55,7 @@ export class SceneSetup {
     buildGiantRealisticRoom() {
         const size = Config.environment.roomSize;
 
-        // 1. أرضية خشبية
+        // 1. أرضية خشبية (تكرار أقل = واقعية أعلى)
         const floorCanvas = document.createElement('canvas');
         floorCanvas.width = 256;
         floorCanvas.height = 256;
@@ -57,20 +65,31 @@ export class SceneSetup {
         ctx.strokeStyle = '#22140b';
         ctx.lineWidth = 3;
         for (let i = 0; i <= 256; i += 64) {
-            ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 256); ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, 256);
+            ctx.stroke();
         }
         for (let j = 0; j <= 256; j += 128) {
             for (let i = 0; i < 256; i += 64) {
                 const shift = (i / 64) % 2 === 0 ? 0 : 64;
-                ctx.beginPath(); ctx.moveTo(i, j + shift); ctx.lineTo(i + 64, j + shift); ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(i, j + shift);
+                ctx.lineTo(i + 64, j + shift);
+                ctx.stroke();
             }
         }
         const floorTexture = new THREE.CanvasTexture(floorCanvas);
         floorTexture.wrapS = THREE.RepeatWrapping;
         floorTexture.wrapT = THREE.RepeatWrapping;
-        floorTexture.repeat.set(30, 30);
+        floorTexture.repeat.set(12, 12);
 
-        const floorMat = new THREE.MeshStandardMaterial({ map: floorTexture, roughness: 0.35, metalness: 0.05 });
+        const floorMat = new THREE.MeshStandardMaterial({
+            map: floorTexture,
+            roughness: 0.45,
+            metalness: 0.03
+        });
+
         const floorGeo = new THREE.PlaneGeometry(size, size);
         const floor = new THREE.Mesh(floorGeo, floorMat);
         floor.rotation.x = -Math.PI / 2;
@@ -78,7 +97,7 @@ export class SceneSetup {
         floor.receiveShadow = true;
         this.scene.add(floor);
 
-        // 2. ورق جدران
+        // 2. جدران (تكرار أقل + ألوان أهدأ)
         const wallCanvas = document.createElement('canvas');
         wallCanvas.width = 256;
         wallCanvas.height = 256;
@@ -87,21 +106,35 @@ export class SceneSetup {
         wCtx.fillRect(0, 0, 256, 256);
         wCtx.strokeStyle = '#a3876c';
         wCtx.lineWidth = 2;
-        for(let x = 0; x <= 256; x += 128) {
-            for(let y = 0; y <= 256; y += 128) {
-                wCtx.beginPath(); wCtx.arc(x + 64, y + 64, 30, 0, Math.PI * 2); wCtx.stroke();
-                wCtx.beginPath(); wCtx.moveTo(x + 64, y + 25); wCtx.lineTo(x + 103, y + 64); wCtx.lineTo(x + 64, y + 103); wCtx.lineTo(x + 25, y + 64); wCtx.closePath(); wCtx.stroke();
+        for (let x = 0; x <= 256; x += 128) {
+            for (let y = 0; y <= 256; y += 128) {
+                wCtx.beginPath();
+                wCtx.arc(x + 64, y + 64, 30, 0, Math.PI * 2);
+                wCtx.stroke();
+
+                wCtx.beginPath();
+                wCtx.moveTo(x + 64, y + 25);
+                wCtx.lineTo(x + 103, y + 64);
+                wCtx.lineTo(x + 64, y + 103);
+                wCtx.lineTo(x + 25, y + 64);
+                wCtx.closePath();
+                wCtx.stroke();
             }
         }
         const wallTexture = new THREE.CanvasTexture(wallCanvas);
         wallTexture.wrapS = THREE.RepeatWrapping;
         wallTexture.wrapT = THREE.RepeatWrapping;
-        wallTexture.repeat.set(24, 12);
+        wallTexture.repeat.set(10, 5);
 
-        const wallMat = new THREE.MeshStandardMaterial({ map: wallTexture, roughness: 0.6, metalness: 0.05, side: THREE.DoubleSide });
+        const wallMat = new THREE.MeshStandardMaterial({
+            map: wallTexture,
+            roughness: 0.72,
+            metalness: 0.02,
+            side: THREE.DoubleSide
+        });
+
         const wallGeo = new THREE.PlaneGeometry(size, size / 2);
 
-        // الجدران الأربعة
         const backWall = new THREE.Mesh(wallGeo, wallMat);
         backWall.position.set(0, size / 4 - 5, -size / 2);
         backWall.receiveShadow = true;
@@ -127,23 +160,39 @@ export class SceneSetup {
 
         // السقف
         const ceilingGeo = new THREE.PlaneGeometry(size, size);
-        const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xeaddcf, roughness: 0.75, side: THREE.DoubleSide });
+        const ceilingMat = new THREE.MeshStandardMaterial({
+            color: 0xe8dece,
+            roughness: 0.82,
+            metalness: 0.0,
+            side: THREE.DoubleSide
+        });
         const ceiling = new THREE.Mesh(ceilingGeo, ceilingMat);
         ceiling.rotation.x = Math.PI / 2;
         ceiling.position.y = size / 2 - 5;
+        ceiling.receiveShadow = true;
         this.scene.add(ceiling);
 
         // 3. شباك
         const windowGroup = new THREE.Group();
-        const frameMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
-        const glassMat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.2, roughness: 0.1 });
+        const frameMat = new THREE.MeshStandardMaterial({ color: 0xf3eee8, roughness: 0.55, metalness: 0.02 });
+        const glassMat = new THREE.MeshPhysicalMaterial({
+            color: 0xdfe9f5,
+            transmission: 0.85,
+            transparent: true,
+            opacity: 0.35,
+            roughness: 0.12,
+            metalness: 0.0
+        });
 
         const outerFrameGeo = new THREE.BoxGeometry(0.5, 20, 15);
         const outerFrame = new THREE.Mesh(outerFrameGeo, frameMat);
+        outerFrame.castShadow = true;
+        outerFrame.receiveShadow = true;
         windowGroup.add(outerFrame);
 
         const glassGeo = new THREE.BoxGeometry(0.2, 19, 14);
         const glass = new THREE.Mesh(glassGeo, glassMat);
+        glass.receiveShadow = false;
         windowGroup.add(glass);
 
         windowGroup.position.set(-size / 2 + 0.3, 10, 0);
@@ -163,7 +212,12 @@ export class SceneSetup {
         const tableTexture = new THREE.CanvasTexture(tableCanvas);
 
         const tableGeo = new THREE.BoxGeometry(12, 0.6, 12);
-        const tableMat = new THREE.MeshStandardMaterial({ map: tableTexture, roughness: 0.25, metalness: 0.05 });
+        const tableMat = new THREE.MeshStandardMaterial({
+            map: tableTexture,
+            roughness: 0.35,
+            metalness: 0.03
+        });
+
         this.table = new THREE.Mesh(tableGeo, tableMat);
         this.table.position.y = -2;
         this.table.receiveShadow = true;
@@ -171,8 +225,14 @@ export class SceneSetup {
         this.scene.add(this.table);
 
         const legGeo = new THREE.CylinderGeometry(0.25, 0.25, 3, 16);
-        const legPositions = [[-5.5, -3.5, 5.5], [5.5, -3.5, 5.5], [-5.5, -3.5, -5.5], [5.5, -3.5, -5.5]];
-        legPositions.forEach(pos => {
+        const legPositions = [
+            [-5.5, -3.5, 5.5],
+            [5.5, -3.5, 5.5],
+            [-5.5, -3.5, -5.5],
+            [5.5, -3.5, -5.5]
+        ];
+
+        legPositions.forEach((pos) => {
             const leg = new THREE.Mesh(legGeo, tableMat);
             leg.position.set(...pos);
             leg.castShadow = true;
