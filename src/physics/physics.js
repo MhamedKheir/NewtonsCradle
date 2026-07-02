@@ -56,7 +56,9 @@ export class PhysicsEngine {
     static resolveCollision2D(balls) {
         const e = Config.physics.restitution || 0.998;
 
-        for (let i = 0; i < balls.length - 1; i++) {
+        // أكثر من تمريرة حتى تنتقل الحركة عبر السلسلة بالكامل عند سحب كرة واحدة
+        for (let pass = 0; pass < 3; pass++) {
+            for (let i = 0; i < balls.length - 1; i++) {
             const b1 = balls[i];
             const b2 = balls[i + 1];
 
@@ -74,10 +76,10 @@ export class PhysicsEngine {
             // ✅ التعامل مع الكرات المسحوبة
             if (b1.isBeingDragged) {
                 b2.position.addScaledVector(normal, -overlap);
-                return;
+                continue;
             } else if (b2.isBeingDragged) {
                 b1.position.addScaledVector(normal, overlap);
-                return;
+                continue;
             }
 
             // ✅ فصل الكرات
@@ -109,12 +111,14 @@ export class PhysicsEngine {
 
                 Config.state.collisionCount++;
             }
+            }
         }
     }
 
     static resolveCollision3D(balls) {
-        for (let i = 0; i < balls.length; i++) {
-            for (let j = i + 1; j < balls.length; j++) {
+        for (let pass = 0; pass < 2; pass++) {
+            for (let i = 0; i < balls.length; i++) {
+                for (let j = i + 1; j < balls.length; j++) {
                 const b1 = balls[i];
                 const b2 = balls[j];
 
@@ -129,10 +133,10 @@ export class PhysicsEngine {
 
                 if (b1.isBeingDragged) {
                     b2.position.addScaledVector(normal, -overlap);
-                    return;
+                    continue;
                 } else if (b2.isBeingDragged) {
                     b1.position.addScaledVector(normal, overlap);
-                    return;
+                    continue;
                 }
 
                 b1.position.addScaledVector(normal, overlap * 0.5);
@@ -147,6 +151,7 @@ export class PhysicsEngine {
                     b1.velocity.addScaledVector(normal, impulse / b1.mass);
                     b2.velocity.addScaledVector(normal, -impulse / b2.mass);
                     Config.state.collisionCount++;
+                }
                 }
             }
         }

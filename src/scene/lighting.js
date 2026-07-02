@@ -30,11 +30,11 @@ export function setupLighting(scene) {
     dirLight.shadow.normalBias = 0.02;
     scene.add(dirLight);
 
-    // 4) سبوت سقفي خفيف ليعطي إحساس غرفة حقيقية
-    const ceilingSpot = new THREE.SpotLight(0xfff1dc, 0.75, 120, Math.PI / 5, 0.35, 1.2);
+    // 4) سبوت سقفي خفيف للإضاءة العامة فقط، بدون ظلال حتى تبقى الظلال من جهة واحدة
+    const ceilingSpot = new THREE.SpotLight(0xfff1dc, 0.45, 120, Math.PI / 5, 0.35, 1.2);
     ceilingSpot.position.set(0, 18, 0);
     ceilingSpot.target.position.set(0, -2, 0);
-    ceilingSpot.castShadow = true;
+    ceilingSpot.castShadow = false;
     ceilingSpot.shadow.mapSize.set(1024, 1024);
     ceilingSpot.shadow.bias = -0.0001;
     scene.add(ceilingSpot);

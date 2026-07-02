@@ -172,31 +172,148 @@ export class SceneSetup {
         ceiling.receiveShadow = true;
         this.scene.add(ceiling);
 
-        // 3. شباك
+        // 3. شباك واقعي + سما زرقاء خارجية
         const windowGroup = new THREE.Group();
-        const frameMat = new THREE.MeshStandardMaterial({ color: 0xf3eee8, roughness: 0.55, metalness: 0.02 });
-        const glassMat = new THREE.MeshPhysicalMaterial({
-            color: 0xdfe9f5,
-            transmission: 0.85,
-            transparent: true,
-            opacity: 0.35,
-            roughness: 0.12,
-            metalness: 0.0
+
+        const frameMat = new THREE.MeshStandardMaterial({
+            color: 0xe9e2d6,
+            roughness: 0.58,
+            metalness: 0.02
         });
 
-        const outerFrameGeo = new THREE.BoxGeometry(0.5, 20, 15);
+        const glassTrimMat = new THREE.MeshStandardMaterial({
+            color: 0xd8cfbf,
+            roughness: 0.64,
+            metalness: 0.01
+        });
+
+        // إطار خارجي مسطح على الجدار
+        const outerFrameGeo = new THREE.BoxGeometry(15.2, 19.8, 0.28);
         const outerFrame = new THREE.Mesh(outerFrameGeo, frameMat);
         outerFrame.castShadow = true;
         outerFrame.receiveShadow = true;
         windowGroup.add(outerFrame);
 
-        const glassGeo = new THREE.BoxGeometry(0.2, 19, 14);
+        // إطار داخلي وحواجز رفيعة على نفس مستوى الجدار
+        const innerFrameGeo = new THREE.BoxGeometry(13.8, 18.0, 0.16);
+        const innerFrame = new THREE.Mesh(innerFrameGeo, glassTrimMat);
+        innerFrame.position.z = 0.03;
+        innerFrame.castShadow = true;
+        innerFrame.receiveShadow = true;
+        windowGroup.add(innerFrame);
+
+        const muntinGeoVertical = new THREE.BoxGeometry(0.14, 18.0, 0.12);
+        const muntinGeoHorizontal = new THREE.BoxGeometry(13.0, 0.14, 0.12);
+
+        const mullionV = new THREE.Mesh(muntinGeoVertical, glassTrimMat);
+        mullionV.position.z = 0.11;
+        mullionV.castShadow = true;
+        mullionV.receiveShadow = true;
+        windowGroup.add(mullionV);
+
+        const mullionH = new THREE.Mesh(muntinGeoHorizontal, glassTrimMat);
+        mullionH.position.z = 0.11;
+        mullionH.castShadow = true;
+        mullionH.receiveShadow = true;
+        windowGroup.add(mullionH);
+
+        // زجاج واقعي
+        const glassMat = new THREE.MeshPhysicalMaterial({
+            color: 0xeaf5ff,
+            transmission: 0.92,
+            transparent: true,
+            opacity: 0.18,
+            roughness: 0.02,
+            metalness: 0.0,
+            ior: 1.5,
+            thickness: 0.22,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.02
+        });
+
+        const glassGeo = new THREE.BoxGeometry(12.6, 17.4, 0.05);
         const glass = new THREE.Mesh(glassGeo, glassMat);
+        glass.position.z = 0.05;
+        glass.castShadow = false;
         glass.receiveShadow = false;
         windowGroup.add(glass);
 
-        windowGroup.position.set(-size / 2 + 0.3, 10, 0);
+        const glassBackingGeo = new THREE.PlaneGeometry(12.8, 17.6);
+        const glassBackingMat = new THREE.MeshBasicMaterial({
+            color: 0x9dcbff,
+            transparent: true,
+            opacity: 0.28,
+            side: THREE.DoubleSide
+        });
+        const glassBacking = new THREE.Mesh(glassBackingGeo, glassBackingMat);
+        glassBacking.position.z = -0.03;
+        windowGroup.add(glassBacking);
+
+        const frameCapGeo = new THREE.BoxGeometry(15.2, 0.18, 0.18);
+        const frameCapTop = new THREE.Mesh(frameCapGeo, frameMat);
+        frameCapTop.position.set(0, 9.82, 0.05);
+        frameCapTop.castShadow = true;
+        frameCapTop.receiveShadow = true;
+        windowGroup.add(frameCapTop);
+
+        const frameCapBottom = new THREE.Mesh(frameCapGeo, frameMat);
+        frameCapBottom.position.set(0, -9.82, 0.05);
+        frameCapBottom.castShadow = true;
+        frameCapBottom.receiveShadow = true;
+        windowGroup.add(frameCapBottom);
+
+        // مكان الشباك على الجدار اليسار
+        windowGroup.rotation.y = Math.PI / 2;
+        windowGroup.position.set(-size / 2 + 0.01, 10, 0);
         this.scene.add(windowGroup);
+
+        // سما خارجية زرقاء (لوح خلف الشباك)
+        const skyCanvas = document.createElement('canvas');
+        skyCanvas.width = 1024;
+        skyCanvas.height = 1024;
+        const sctx = skyCanvas.getContext('2d');
+
+        const grad = sctx.createLinearGradient(0, 0, 0, 1024);
+        grad.addColorStop(0, '#4e8fdb');
+        grad.addColorStop(0.58, '#80baf3');
+        grad.addColorStop(1, '#d9edff');
+        sctx.fillStyle = grad;
+        sctx.fillRect(0, 0, 1024, 1024);
+
+        // غيوم خفيفة
+        for (let i = 0; i < 14; i++) {
+            const x = Math.random() * 1024;
+            const y = Math.random() * 380;
+            const r = 36 + Math.random() * 75;
+            const alpha = 0.04 + Math.random() * 0.05;
+            sctx.beginPath();
+            sctx.fillStyle = `rgba(255,255,255,${alpha})`;
+            sctx.ellipse(x, y, r * 1.4, r, 0, 0, Math.PI * 2);
+            sctx.fill();
+        }
+
+        // وهج شمس خافت لزيادة الإحساس بالعمق الخارجي
+        const sunGlow = sctx.createRadialGradient(760, 180, 10, 760, 180, 180);
+        sunGlow.addColorStop(0, 'rgba(255,255,255,0.5)');
+        sunGlow.addColorStop(0.25, 'rgba(255,245,220,0.2)');
+        sunGlow.addColorStop(1, 'rgba(255,245,220,0)');
+        sctx.fillStyle = sunGlow;
+        sctx.beginPath();
+        sctx.arc(760, 180, 180, 0, Math.PI * 2);
+        sctx.fill();
+
+        const skyTexture = new THREE.CanvasTexture(skyCanvas);
+        skyTexture.colorSpace = THREE.SRGBColorSpace;
+
+        const skyMat = new THREE.MeshBasicMaterial({
+            map: skyTexture,
+            side: THREE.DoubleSide
+        });
+
+        const skyPlane = new THREE.Mesh(new THREE.PlaneGeometry(46, 34), skyMat);
+        skyPlane.position.set(-size / 2 - 6.2, 10, 0);
+        skyPlane.rotation.y = Math.PI / 2;
+        this.scene.add(skyPlane);
 
         // 4. طاولة خشبية
         const tableCanvas = document.createElement('canvas');

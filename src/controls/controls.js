@@ -20,7 +20,7 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
-    
+
 
     function updateAngleUI(angle) {
         if (!Config.mouseControl.showAngle) return;
@@ -164,6 +164,10 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
 
             selectedBall.angularVelocity = 0;
             selectedBall.angularAcceleration = 0;
+
+            if (simManager && simManager.applyDragChain) {
+                simManager.applyDragChain(selectedBall);
+            }
 
             updateAngleUI(targetAngle);
         }

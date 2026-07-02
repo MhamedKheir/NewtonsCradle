@@ -228,6 +228,47 @@ resetAllMasses() {
     console.log(`📝 تم حفظ الكتلة المخصصة للكرة ${index + 1}: ${mass} كغ`);
 }
 
+    constrainBallToPendulumArc(ball, xPosition) {
+        const dx = xPosition - ball.pivot.x;
+        const clampedDx = Math.max(-ball.length + 0.0001, Math.min(ball.length - 0.0001, dx));
+        const angle = Math.asin(clampedDx / ball.length);
+        ball.angle = angle;
+        ball.position.x = ball.pivot.x + ball.length * Math.sin(angle);
+        ball.position.y = ball.pivot.y - ball.length * Math.cos(angle);
+        ball.position.z = ball.pivot.z;
+        ball.angularVelocity = 0;
+        ball.angularAcceleration = 0;
+        ball.velocity.set(0, 0, 0);
+    }
+
+    applyDragChain(draggedBall) {
+        if (!draggedBall || Config.physics.mode !== '2d') return;
+
+        const draggedIndex = this.balls.indexOf(draggedBall);
+        if (draggedIndex === -1) return;
+
+        const spacing = Config.balls.spacing || 0;
+        const movingLeft = draggedBall.position.x < draggedBall.pivot.x;
+
+        if (movingLeft) {
+            for (let i = draggedIndex - 1; i >= 0; i--) {
+                const rightBall = this.balls[i + 1];
+                const ball = this.balls[i];
+                const minDistance = ball.radius + rightBall.radius + spacing;
+                const targetX = rightBall.position.x - minDistance;
+                this.constrainBallToPendulumArc(ball, targetX);
+            }
+        } else {
+            for (let i = draggedIndex + 1; i < this.balls.length; i++) {
+                const leftBall = this.balls[i - 1];
+                const ball = this.balls[i];
+                const minDistance = ball.radius + leftBall.radius + spacing;
+                const targetX = leftBall.position.x + minDistance;
+                this.constrainBallToPendulumArc(ball, targetX);
+            }
+        }
+    }
+
 
     calculateGlobalMetrics() {
         let totalKE = 0;
