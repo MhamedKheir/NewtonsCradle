@@ -11,15 +11,23 @@ import { PhysicsEngine } from './physics/physics.js';
 import { setupKeyboardShortcuts } from './controls/controls.js';
 import { ControlPanel } from './ui/controlPanel.js';
 import { DataPanel } from './ui/dataPanel.js';
+// ✅ استيراد مدير الصوت
+import { SoundManager } from './audio/soundManager.js';
 
 class Application {
     constructor() {
+        // ✅ تهيئة مدير الصوت
+        this.soundManager = new SoundManager();
+
         // 1. بناء المشهد الأساسي والإضاءة
         this.sceneSetup = new SceneSetup('canvas-container');
         setupLighting(this.sceneSetup.scene);
 
         // 2. تمرير الـ renderer إلى مدير المحاكاة
         this.simManager = new SimulationManager(this.sceneSetup.scene, this.sceneSetup.renderer);
+
+        // ✅ تمرير مدير الصوت إلى PhysicsEngine
+        PhysicsEngine.setSoundManager(this.soundManager);
 
         // 3. ربط واجهات التحكم والبيانات
         this.controlPanel = new ControlPanel(this.simManager, this.sceneSetup);
@@ -30,6 +38,19 @@ class Application {
 
         this.clock = new THREE.Clock();
         this.animate();
+
+        // ✅ تهيئة الصوت عند أول تفاعل مع المستخدم
+        this.initAudioOnInteraction();
+    }
+
+    // ✅ تهيئة الصوت عند أول نقرة أو لمسة (مطلوب في بعض المتصفحات)
+    initAudioOnInteraction() {
+        const events = ['click', 'touchstart', 'keydown'];
+        const init = () => {
+            this.soundManager.init();
+            events.forEach(e => document.removeEventListener(e, init));
+        };
+        events.forEach(e => document.addEventListener(e, init, { once: true }));
     }
 
     animate() {

@@ -55,15 +55,15 @@ export class SceneSetup {
     buildGiantRealisticRoom() {
         const size = Config.environment.roomSize;
 
-        // 1. أرضية خشبية (تكرار أقل = واقعية أعلى)
+        // 1. أرضية خشبية طبيعية جميلة
         const floorCanvas = document.createElement('canvas');
         floorCanvas.width = 256;
         floorCanvas.height = 256;
         const ctx = floorCanvas.getContext('2d');
-        ctx.fillStyle = '#422a18';
+        ctx.fillStyle = '#c9a575';
         ctx.fillRect(0, 0, 256, 256);
-        ctx.strokeStyle = '#22140b';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#a67c52';
+        ctx.lineWidth = 2;
         for (let i = 0; i <= 256; i += 64) {
             ctx.beginPath();
             ctx.moveTo(i, 0);
@@ -73,10 +73,8 @@ export class SceneSetup {
         for (let j = 0; j <= 256; j += 128) {
             for (let i = 0; i < 256; i += 64) {
                 const shift = (i / 64) % 2 === 0 ? 0 : 64;
-                ctx.beginPath();
-                ctx.moveTo(i, j + shift);
-                ctx.lineTo(i + 64, j + shift);
-                ctx.stroke();
+                ctx.fillStyle = Math.random() > 0.5 ? '#b88a5f' : '#d4ad7d';
+                ctx.fillRect(i, j + shift, 64, 64);
             }
         }
         const floorTexture = new THREE.CanvasTexture(floorCanvas);
@@ -86,8 +84,8 @@ export class SceneSetup {
 
         const floorMat = new THREE.MeshStandardMaterial({
             map: floorTexture,
-            roughness: 0.45,
-            metalness: 0.03
+            roughness: 0.55,
+            metalness: 0.01
         });
 
         const floorGeo = new THREE.PlaneGeometry(size, size);
@@ -97,39 +95,41 @@ export class SceneSetup {
         floor.receiveShadow = true;
         this.scene.add(floor);
 
-        // 2. جدران (تكرار أقل + ألوان أهدأ)
+        // 2. جدران بألوان دافئة مريحة مع ورق جدران مزخرفة
         const wallCanvas = document.createElement('canvas');
-        wallCanvas.width = 256;
-        wallCanvas.height = 256;
+        wallCanvas.width = 512;
+        wallCanvas.height = 512;
         const wCtx = wallCanvas.getContext('2d');
-        wCtx.fillStyle = '#8a6d53';
-        wCtx.fillRect(0, 0, 256, 256);
-        wCtx.strokeStyle = '#a3876c';
-        wCtx.lineWidth = 2;
-        for (let x = 0; x <= 256; x += 128) {
-            for (let y = 0; y <= 256; y += 128) {
+        wCtx.fillStyle = '#e8dcd0';
+        wCtx.fillRect(0, 0, 512, 512);
+        wCtx.strokeStyle = '#d9c9b8';
+        wCtx.lineWidth = 1.5;
+        for (let x = 0; x <= 512; x += 64) {
+            for (let y = 0; y <= 512; y += 64) {
                 wCtx.beginPath();
-                wCtx.arc(x + 64, y + 64, 30, 0, Math.PI * 2);
+                wCtx.arc(x + 32, y + 32, 18, 0, Math.PI * 2);
                 wCtx.stroke();
-
                 wCtx.beginPath();
-                wCtx.moveTo(x + 64, y + 25);
-                wCtx.lineTo(x + 103, y + 64);
-                wCtx.lineTo(x + 64, y + 103);
-                wCtx.lineTo(x + 25, y + 64);
+                wCtx.moveTo(x + 32, y + 16);
+                wCtx.lineTo(x + 48, y + 32);
+                wCtx.lineTo(x + 32, y + 48);
+                wCtx.lineTo(x + 16, y + 32);
                 wCtx.closePath();
                 wCtx.stroke();
+                wCtx.fillStyle = Math.random() > 0.5 ? 'rgba(200,180,160,0.08)' : 'rgba(220,200,180,0.05)';
+                wCtx.fillRect(x, y, 64, 64);
+                wCtx.fillStyle = '#d9c9b8';
             }
         }
         const wallTexture = new THREE.CanvasTexture(wallCanvas);
         wallTexture.wrapS = THREE.RepeatWrapping;
         wallTexture.wrapT = THREE.RepeatWrapping;
-        wallTexture.repeat.set(10, 5);
+        wallTexture.repeat.set(8, 4);
 
         const wallMat = new THREE.MeshStandardMaterial({
             map: wallTexture,
-            roughness: 0.72,
-            metalness: 0.02,
+            roughness: 0.85,
+            metalness: 0.0,
             side: THREE.DoubleSide
         });
 
@@ -161,8 +161,8 @@ export class SceneSetup {
         // السقف
         const ceilingGeo = new THREE.PlaneGeometry(size, size);
         const ceilingMat = new THREE.MeshStandardMaterial({
-            color: 0xe8dece,
-            roughness: 0.82,
+            color: 0xf0e8e0,
+            roughness: 0.85,
             metalness: 0.0,
             side: THREE.DoubleSide
         });
@@ -172,150 +172,7 @@ export class SceneSetup {
         ceiling.receiveShadow = true;
         this.scene.add(ceiling);
 
-        // 3. شباك واقعي + سما زرقاء خارجية
-        const windowGroup = new THREE.Group();
-
-        const frameMat = new THREE.MeshStandardMaterial({
-            color: 0xe9e2d6,
-            roughness: 0.58,
-            metalness: 0.02
-        });
-
-        const glassTrimMat = new THREE.MeshStandardMaterial({
-            color: 0xd8cfbf,
-            roughness: 0.64,
-            metalness: 0.01
-        });
-
-        // إطار خارجي مسطح على الجدار
-        const outerFrameGeo = new THREE.BoxGeometry(15.2, 19.8, 0.28);
-        const outerFrame = new THREE.Mesh(outerFrameGeo, frameMat);
-        outerFrame.castShadow = true;
-        outerFrame.receiveShadow = true;
-        windowGroup.add(outerFrame);
-
-        // إطار داخلي وحواجز رفيعة على نفس مستوى الجدار
-        const innerFrameGeo = new THREE.BoxGeometry(13.8, 18.0, 0.16);
-        const innerFrame = new THREE.Mesh(innerFrameGeo, glassTrimMat);
-        innerFrame.position.z = 0.03;
-        innerFrame.castShadow = true;
-        innerFrame.receiveShadow = true;
-        windowGroup.add(innerFrame);
-
-        const muntinGeoVertical = new THREE.BoxGeometry(0.14, 18.0, 0.12);
-        const muntinGeoHorizontal = new THREE.BoxGeometry(13.0, 0.14, 0.12);
-
-        const mullionV = new THREE.Mesh(muntinGeoVertical, glassTrimMat);
-        mullionV.position.z = 0.11;
-        mullionV.castShadow = true;
-        mullionV.receiveShadow = true;
-        windowGroup.add(mullionV);
-
-        const mullionH = new THREE.Mesh(muntinGeoHorizontal, glassTrimMat);
-        mullionH.position.z = 0.11;
-        mullionH.castShadow = true;
-        mullionH.receiveShadow = true;
-        windowGroup.add(mullionH);
-
-        // زجاج واقعي
-        const glassMat = new THREE.MeshPhysicalMaterial({
-            color: 0xeaf5ff,
-            transmission: 0.92,
-            transparent: true,
-            opacity: 0.18,
-            roughness: 0.02,
-            metalness: 0.0,
-            ior: 1.5,
-            thickness: 0.22,
-            clearcoat: 1.0,
-            clearcoatRoughness: 0.02
-        });
-
-        const glassGeo = new THREE.BoxGeometry(12.6, 17.4, 0.05);
-        const glass = new THREE.Mesh(glassGeo, glassMat);
-        glass.position.z = 0.05;
-        glass.castShadow = false;
-        glass.receiveShadow = false;
-        windowGroup.add(glass);
-
-        const glassBackingGeo = new THREE.PlaneGeometry(12.8, 17.6);
-        const glassBackingMat = new THREE.MeshBasicMaterial({
-            color: 0x9dcbff,
-            transparent: true,
-            opacity: 0.28,
-            side: THREE.DoubleSide
-        });
-        const glassBacking = new THREE.Mesh(glassBackingGeo, glassBackingMat);
-        glassBacking.position.z = -0.03;
-        windowGroup.add(glassBacking);
-
-        const frameCapGeo = new THREE.BoxGeometry(15.2, 0.18, 0.18);
-        const frameCapTop = new THREE.Mesh(frameCapGeo, frameMat);
-        frameCapTop.position.set(0, 9.82, 0.05);
-        frameCapTop.castShadow = true;
-        frameCapTop.receiveShadow = true;
-        windowGroup.add(frameCapTop);
-
-        const frameCapBottom = new THREE.Mesh(frameCapGeo, frameMat);
-        frameCapBottom.position.set(0, -9.82, 0.05);
-        frameCapBottom.castShadow = true;
-        frameCapBottom.receiveShadow = true;
-        windowGroup.add(frameCapBottom);
-
-        // مكان الشباك على الجدار اليسار
-        windowGroup.rotation.y = Math.PI / 2;
-        windowGroup.position.set(-size / 2 + 0.01, 10, 0);
-        this.scene.add(windowGroup);
-
-        // سما خارجية زرقاء (لوح خلف الشباك)
-        const skyCanvas = document.createElement('canvas');
-        skyCanvas.width = 1024;
-        skyCanvas.height = 1024;
-        const sctx = skyCanvas.getContext('2d');
-
-        const grad = sctx.createLinearGradient(0, 0, 0, 1024);
-        grad.addColorStop(0, '#4e8fdb');
-        grad.addColorStop(0.58, '#80baf3');
-        grad.addColorStop(1, '#d9edff');
-        sctx.fillStyle = grad;
-        sctx.fillRect(0, 0, 1024, 1024);
-
-        // غيوم خفيفة
-        for (let i = 0; i < 14; i++) {
-            const x = Math.random() * 1024;
-            const y = Math.random() * 380;
-            const r = 36 + Math.random() * 75;
-            const alpha = 0.04 + Math.random() * 0.05;
-            sctx.beginPath();
-            sctx.fillStyle = `rgba(255,255,255,${alpha})`;
-            sctx.ellipse(x, y, r * 1.4, r, 0, 0, Math.PI * 2);
-            sctx.fill();
-        }
-
-        // وهج شمس خافت لزيادة الإحساس بالعمق الخارجي
-        const sunGlow = sctx.createRadialGradient(760, 180, 10, 760, 180, 180);
-        sunGlow.addColorStop(0, 'rgba(255,255,255,0.5)');
-        sunGlow.addColorStop(0.25, 'rgba(255,245,220,0.2)');
-        sunGlow.addColorStop(1, 'rgba(255,245,220,0)');
-        sctx.fillStyle = sunGlow;
-        sctx.beginPath();
-        sctx.arc(760, 180, 180, 0, Math.PI * 2);
-        sctx.fill();
-
-        const skyTexture = new THREE.CanvasTexture(skyCanvas);
-        skyTexture.colorSpace = THREE.SRGBColorSpace;
-
-        const skyMat = new THREE.MeshBasicMaterial({
-            map: skyTexture,
-            side: THREE.DoubleSide
-        });
-
-        const skyPlane = new THREE.Mesh(new THREE.PlaneGeometry(46, 34), skyMat);
-        skyPlane.position.set(-size / 2 - 6.2, 10, 0);
-        skyPlane.rotation.y = Math.PI / 2;
-        this.scene.add(skyPlane);
-
-        // 4. طاولة خشبية
+        // 3. طاولة خشبية كبيرة مرتفعة
         const tableCanvas = document.createElement('canvas');
         tableCanvas.width = 256;
         tableCanvas.height = 256;
@@ -328,7 +185,8 @@ export class SceneSetup {
         }
         const tableTexture = new THREE.CanvasTexture(tableCanvas);
 
-        const tableGeo = new THREE.BoxGeometry(12, 0.6, 12);
+        // ✅ طاولة أكبر وأكثر سمكاً
+        const tableGeo = new THREE.BoxGeometry(24, 0.8, 24);
         const tableMat = new THREE.MeshStandardMaterial({
             map: tableTexture,
             roughness: 0.35,
@@ -336,17 +194,18 @@ export class SceneSetup {
         });
 
         this.table = new THREE.Mesh(tableGeo, tableMat);
-        this.table.position.y = -2;
+        this.table.position.y = 3;
         this.table.receiveShadow = true;
         this.table.castShadow = true;
         this.scene.add(this.table);
 
-        const legGeo = new THREE.CylinderGeometry(0.25, 0.25, 3, 16);
+        // ✅ أرجل الطاولة أطول - موضوعة بشكل صحيح على الأرضية
+        const legGeo = new THREE.CylinderGeometry(0.3, 0.3, 8, 16);
         const legPositions = [
-            [-5.5, -3.5, 5.5],
-            [5.5, -3.5, 5.5],
-            [-5.5, -3.5, -5.5],
-            [5.5, -3.5, -5.5]
+            [-11, -1, 11],
+            [11, -1, 11],
+            [-11, -1, -11],
+            [11, -1, -11]
         ];
 
         legPositions.forEach((pos) => {
@@ -364,3 +223,4 @@ export class SceneSetup {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 }
+

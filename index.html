@@ -25,7 +25,7 @@
     <!-- UI Panels / الواجهات اللوحية -->
 
     <!-- Left Panel: Analytics -->
-    <div id="data-panel" class="panel glass-panel left-panel collapsed">
+    <div id="data-panel" class="panel glass-panel left-panel">
       <button id="toggle-data" class="toggle-btn">📊</button>
       <div class="panel-content">
         <h2>التحليلات المباشرة</h2>
@@ -57,40 +57,125 @@
         <h2>أدوات التحكم</h2>
 
         <div class="control-group">
-    <label>تعديل وزن الكرات</label>
+          <label>تعديل وزن الكرات</label>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 8px;">
-        <select id="select-ball" style="flex: 1; padding: 6px; border-radius: 6px; background: #1a1a26; color: white; border: 1px solid rgba(255,255,255,0.1);">
-            <option value="0">الكرة 1</option>
-            <option value="1">الكرة 2</option>
-            <option value="2">الكرة 3</option>
-            <option value="3">الكرة 4</option>
-            <option value="4">الكرة 5</option>
-            <option value="5">الكرة 6</option>
-        </select>
+          <div style="display: flex; gap: 10px; margin-bottom: 8px">
+            <select
+              id="select-ball"
+              style="
+                flex: 1;
+                padding: 6px;
+                border-radius: 6px;
+                background: #1a1a26;
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+              "
+            >
+              <option value="0">الكرة 1</option>
+              <option value="1">الكرة 2</option>
+              <option value="2">الكرة 3</option>
+              <option value="3">الكرة 4</option>
+              <option value="4">الكرة 5</option>
+              <option value="5">الكرة 6</option>
+            </select>
 
-        <select id="select-mass" style="flex: 1; padding: 6px; border-radius: 6px; background: #1a1a26; color: white; border: 1px solid rgba(255,255,255,0.1);">
-            <option value="1">1m (افتراضي)</option>
-            <option value="2">2m (ثقيل)</option>
-            <option value="3">3m (ثقيل جداً)</option>
-            <option value="4">4m (ضخم)</option>
-        </select>
-    </div>
+            <select
+              id="select-mass"
+              style="
+                flex: 1;
+                padding: 6px;
+                border-radius: 6px;
+                background: #1a1a26;
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+              "
+            >
+              <option value="1">1m (افتراضي)</option>
+              <option value="2">2m (ثقيل)</option>
+              <option value="3">3m (ثقيل جداً)</option>
+              <option value="4">4m (ضخم)</option>
+            </select>
+          </div>
 
-    <button id="btn-apply-mass" class="action-btn" style="margin-top: 0; padding: 6px 12px; font-size: 13px;">تطبيق الوزن</button>
+          <button
+            id="btn-apply-mass"
+            class="action-btn"
+            style="margin-top: 0; padding: 6px 12px; font-size: 13px"
+          >
+            تطبيق الوزن
+          </button>
 
-    <div id="mass-status" style="font-size: 12px; color: #aaa; margin-top: 6px; text-align: center;">اختر كرة ووزنها ثم اضغط تطبيق</div>
-</div>
+          <div
+            id="mass-status"
+            style="
+              font-size: 12px;
+              color: #aaa;
+              margin-top: 6px;
+              text-align: center;
+            "
+          >
+            اختر كرة ووزنها ثم اضغط تطبيق
+          </div>
+        </div>
 
-<div class="control-group">
-    <button id="btn-reset-masses" class="action-btn" style="background: linear-gradient(135deg, #ff6b6b, #ee5a24);">
-        🔄 إعادة تعيين جميع الكتل
-    </button>
-    <div style="font-size: 11px; color: #888; text-align: center; margin-top: 4px;">
-        يعيد جميع الكرات إلى الوزن والحجم الافتراضي
-    </div>
-</div>
+        <div class="control-group">
+          <button
+            id="btn-reset-masses"
+            class="action-btn"
+            style="background: linear-gradient(135deg, #ff6b6b, #ee5a24)"
+          >
+            🔄 إعادة تعيين جميع الكتل
+          </button>
+          <div
+            style="
+              font-size: 11px;
+              color: #888;
+              text-align: center;
+              margin-top: 4px;
+            "
+          >
+            يعيد جميع الكرات إلى الوزن والحجم الافتراضي
+          </div>
+        </div>
 
+        <!-- عدد الكرات -->
+        <div class="control-group">
+          <label>عدد الكرات: <span id="lbl-ball-count">6</span></label>
+          <input
+            type="range"
+            id="sld-ball-count"
+            min="3"
+            max="11"
+            step="1"
+            value="6"
+          />
+        </div>
+
+        <!-- طول الخيط -->
+        <div class="control-group">
+          <label>طول الخيط: <span id="lbl-string-length">4.4</span> م</label>
+          <input
+            type="range"
+            id="sld-string-length"
+            min="1"
+            max="8"
+            step="0.1"
+            value="4.4"
+          />
+        </div>
+
+        <!-- سرعة المحاكاة -->
+        <div class="control-group">
+          <label>سرعة المحاكاة: <span id="lbl-time-scale">2.8 </span>x</label>
+          <input
+            type="range"
+            id="sld-time-scale"
+            min="0.1"
+            max="5.0"
+            step="0.01"
+            value="2.8"
+          />
+        </div>
 
         <div class="control-group">
           <label>الجاذبية (<span id="lbl-gravity">9.8</span>)</label>
@@ -105,7 +190,9 @@
         </div>
 
         <div class="control-group">
-          <label>التخميد الزاوي (<span id="lbl-angular-damping">0.005</span>)</label>
+          <label
+            >التخميد الزاوي (<span id="lbl-angular-damping">0.005</span>)</label
+          >
           <input
             type="range"
             id="sld-angular-damping"
@@ -128,30 +215,59 @@
           />
         </div>
 
-
-<div class="control-group">
-    <label>وضع الحركة</label>
-    <select id="select-mode">
-        <option value="2d">ثنائي الأبعاد (2D)</option>
-        <option value="3d">ثلاثي الأبعاد (3D)</option>
-    </select>
-</div>
+        <div class="control-group">
+          <label>وضع الحركة</label>
+          <select id="select-mode">
+            <option value="2d">ثنائي الأبعاد (2D)</option>
+            <option value="3d">ثلاثي الأبعاد (3D)</option>
+          </select>
+        </div>
 
         <div class="control-group">
-          <label>الإضاءة المحيطية (<span id="lbl-ambient">0.30</span>)</label>
+          <label>وضع القاعدة</label>
+          <select id="select-base">
+            <option value="mirror">مرآة عاكسة</option>
+            <option value="wood">خشب طبيعي</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>الإضاءة المحيطية (<span id="lbl-ambient">0.50</span>)</label>
           <input
             type="range"
             id="sld-ambient"
             min="0"
             max="3"
             step="0.05"
-            value="0.3"
+            value="0.5"
           />
         </div>
 
+        <!-- 🔊 التحكم بالصوت -->
+        <!-- 🔊 التحكم بالصوت - أضف هذا في لوحة التحكم -->
+<div class="control-group">
+    <label style="display: flex; justify-content: space-between; align-items: center;">
+        <span>🔊 المؤثرات الصوتية</span>
+        <span id="lbl-sound-status" style="font-size: 0.7rem; color: #00e676;">🟢 مفعل</span>
+    </label>
+    <div style="display: flex; gap: 8px; align-items: center;">
+        <button id="btn-toggle-sound" class="action-btn" style="flex: 0 0 80px; padding: 6px 8px; font-size: 12px; background: linear-gradient(135deg, #4a9eff, #2d7dd2); margin-top: 0;">
+            🔊 تشغيل
+        </button>
+        <input type="range" id="sld-sound-volume" min="0" max="100" value="35" style="flex: 1; margin: 0;" />
+        <span id="lbl-sound-volume" style="font-size: 12px; color: #aaa; min-width: 35px; text-align: center;">35%</span>
+    </div>
+</div>
 
-        <div class="control-group" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-          <h3 style="color: #00d4ff; font-size: 1rem; margin-bottom: 10px;">
+        <div
+          class="control-group"
+          style="
+            margin-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+          "
+        >
+          <h3 style="color: #00d4ff; font-size: 1rem; margin-bottom: 10px">
             🖱️ التحكم بالماوس
           </h3>
 
@@ -165,17 +281,20 @@
             value="0.75"
           />
 
-
           <div style="display: flex; gap: 15px; margin-top: 10px">
             <label>
-              <input type="checkbox" id="chk-show-path" checked /> إظهار مسار السحب
+              <input type="checkbox" id="chk-show-path" checked /> إظهار مسار
+              السحب
             </label>
             <label>
-              <input type="checkbox" id="chk-show-angle" checked /> إظهار الزاوية
+              <input type="checkbox" id="chk-show-angle" checked /> إظهار
+              الزاوية
             </label>
           </div>
 
-          <label style="margin-top: 10px">سرعة الارتداد (<span id="lbl-return-speed">80</span>%)</label>
+          <label style="margin-top: 10px"
+            >سرعة الارتداد (<span id="lbl-return-speed">80</span>%)</label
+          >
           <input
             type="range"
             id="sld-return-speed"

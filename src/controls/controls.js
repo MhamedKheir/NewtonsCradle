@@ -201,6 +201,7 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
                 // ✅ عامل تخفيف السرعة (جربه بين 0.5 و 0.9)
                 const speedFactor = 0.7;
 
+
                 const velocityMagnitude = Math.sqrt(2 * g * L * (1 - Math.cos(angle))) * speedFactor * returnSpeed;
                 const direction = angle > 0 ? -1 : 1;
                 selectedBall.angularVelocity = direction * velocityMagnitude / L;
