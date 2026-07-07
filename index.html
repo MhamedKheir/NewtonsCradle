@@ -14,9 +14,6 @@
       rel="stylesheet"
     />
 
-    <!-- ❌ حذف سكربتات CDN (لم تعد هناك حاجة لها) -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script> -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script> -->
   </head>
   <body>
     <!-- Canvas Viewport / شاشة العرض ثلاثية الأبعاد -->
@@ -26,7 +23,7 @@
 
     <!-- Left Panel: Analytics -->
     <div id="data-panel" class="panel glass-panel left-panel">
-      <button id="toggle-data" class="toggle-btn">📊</button>
+     <button id="toggle-data" class="toggle-btn">📊</button>
       <div class="panel-content">
         <h2>التحليلات المباشرة</h2>
         <div class="stats-container">
@@ -232,32 +229,67 @@
         </div>
 
         <div class="control-group">
-          <label>الإضاءة المحيطية (<span id="lbl-ambient">0.50</span>)</label>
+          <label>الإضاءة المحيطية (<span id="lbl-ambient">0.55</span>)</label>
           <input
             type="range"
             id="sld-ambient"
             min="0"
-            max="3"
+            max="1.5"
             step="0.05"
-            value="0.5"
+            value="0.55"
           />
         </div>
 
         <!-- 🔊 التحكم بالصوت -->
-        <!-- 🔊 التحكم بالصوت - أضف هذا في لوحة التحكم -->
-<div class="control-group">
-    <label style="display: flex; justify-content: space-between; align-items: center;">
-        <span>🔊 المؤثرات الصوتية</span>
-        <span id="lbl-sound-status" style="font-size: 0.7rem; color: #00e676;">🟢 مفعل</span>
-    </label>
-    <div style="display: flex; gap: 8px; align-items: center;">
-        <button id="btn-toggle-sound" class="action-btn" style="flex: 0 0 80px; padding: 6px 8px; font-size: 12px; background: linear-gradient(135deg, #4a9eff, #2d7dd2); margin-top: 0;">
-            🔊 تشغيل
-        </button>
-        <input type="range" id="sld-sound-volume" min="0" max="100" value="35" style="flex: 1; margin: 0;" />
-        <span id="lbl-sound-volume" style="font-size: 12px; color: #aaa; min-width: 35px; text-align: center;">35%</span>
-    </div>
-</div>
+        <div class="control-group">
+          <label
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>🔊 المؤثرات الصوتية</span>
+            <span
+              id="lbl-sound-status"
+              style="font-size: 0.7rem; color: #00e676"
+              >🟢 مفعل</span
+            >
+          </label>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <button
+              id="btn-toggle-sound"
+              class="action-btn"
+              style="
+                flex: 0 0 80px;
+                padding: 6px 8px;
+                font-size: 12px;
+                background: linear-gradient(135deg, #4a9eff, #2d7dd2);
+                margin-top: 0;
+              "
+            >
+              🔊 تشغيل
+            </button>
+            <input
+              type="range"
+              id="sld-sound-volume"
+              min="0"
+              max="100"
+              value="40"
+              style="flex: 1; margin: 0"
+            />
+            <span
+              id="lbl-sound-volume"
+              style="
+                font-size: 12px;
+                color: #aaa;
+                min-width: 35px;
+                text-align: center;
+              "
+              >40%</span
+            >
+          </div>
+        </div>
 
         <div
           class="control-group"

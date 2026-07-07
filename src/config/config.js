@@ -5,7 +5,7 @@ export const Config = {
         angularDamping: 0.005,
         restitution: 0.98,
         stringLength: 4.4,
-        timeScale: 2.8,
+        timeScale: 3.7,
         subSteps: 80,
         mode: '2d'  // القيمة الافتراضية 2D
     },
@@ -28,9 +28,9 @@ export const Config = {
     },
     environment: {
         ambientColor: '#d6e4ff',
-        ambientIntensity: 0.50,
+        ambientIntensity: 0.55,
         dirLightColor: '#fffaed',
-        dirLightIntensity: 0.65,
+        dirLightIntensity: 0.80,
         bgColor: '#e14f10',
         shadowsEnabled: true,
         roomSize: 150,

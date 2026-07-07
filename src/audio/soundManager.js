@@ -4,9 +4,9 @@ export class SoundManager {
     constructor() {
         this.audioContext = null;
         this.enabled = true;
-        this.volume = 0.35;
+        this.volume = 0.6;
         this.lastPlayTime = 0;
-        this.minInterval = 0.015; // تقليل الفاصل الزمني لتصادمات أسرع
+        this.minInterval = 0.012; // فاصل زمني صغير جدًا لتناسب التلاحم السريع للكرات
     }
 
     init() {
@@ -21,11 +21,11 @@ export class SoundManager {
         return this.audioContext;
     }
 
-    // ✅ ✅ ✅ صوت معدني واقعي ✅ ✅ ✅
+    // ✅ صوت ارتطام كرات بندول نيوتن الصلبة (Clack) الواقعي ✅
     playMetalHit(intensity = 1.0) {
         if (!this.enabled) return;
 
-        // منع التكرار السريع جداً
+        // منع تداخل الأصوات بشكل مفرط في الأجزاء المتناهية من الثانية
         const now = performance.now() / 1000;
         if (now - this.lastPlayTime < this.minInterval) return;
         this.lastPlayTime = now;
@@ -34,107 +34,82 @@ export class SoundManager {
             const ctx = this.init();
             if (!ctx) return;
 
-            // ✅ شدة الصوت بناءً على قوة التصادم
-            const vol = Math.min(this.volume * intensity * 1.5, 0.6);
+            // حساب شدة الصوت بناءً على قوة الارتطام الفعلية
+            const vol = Math.min(this.volume * intensity * 1.6, 0.7);
 
             // ============================================
-            // 1️⃣ الصوت الأساسي (النغمة الرئيسية)
+            // 1️⃣ النقر الفوري الحاد (The "Click" Attack)
             // ============================================
-            const osc1 = ctx.createOscillator();
-            const gain1 = ctx.createGain();
+            // نستخدم الضوضاء البيضاء المخمدة بسرعة خارقة لمحاكاة تلاحم أسطح الصلب
+            const clickBufferSize = ctx.sampleRate * 0.008; // 8 مللي ثانية فقط!
+            const clickBuffer = ctx.createBuffer(1, clickBufferSize, ctx.sampleRate);
+            const clickData = clickBuffer.getChannelData(0);
 
-            // تردد عالي معدني (كلما زاد كان الصوت أكثر حدة)
-            const baseFreq = 700 + Math.random() * 400 + intensity * 150;
-            osc1.frequency.setValueAtTime(baseFreq, ctx.currentTime);
-            // انخفاض سريع في التردد (تأثير "الرنين")
-            osc1.frequency.exponentialRampToValueAtTime(
-                baseFreq * 0.4,
-                ctx.currentTime + 0.04
-            );
-
-            osc1.type = 'triangle';
-            gain1.gain.setValueAtTime(vol * 0.7, ctx.currentTime);
-            gain1.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.06);
-
-            osc1.connect(gain1);
-            gain1.connect(ctx.destination);
-            osc1.start(ctx.currentTime);
-            osc1.stop(ctx.currentTime + 0.06);
-
-            // ============================================
-            // 2️⃣ النغمة الثانوية (رنين معدني)
-            // ============================================
-            const osc2 = ctx.createOscillator();
-            const gain2 = ctx.createGain();
-
-            // تردد أعلى (رنين)
-            const harmonicFreq = baseFreq * 1.5 + Math.random() * 100;
-            osc2.frequency.setValueAtTime(harmonicFreq, ctx.currentTime);
-            osc2.frequency.exponentialRampToValueAtTime(
-                harmonicFreq * 0.3,
-                ctx.currentTime + 0.03
-            );
-
-            osc2.type = 'triangle';
-            gain2.gain.setValueAtTime(vol * 0.35, ctx.currentTime);
-            gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
-
-            osc2.connect(gain2);
-            gain2.connect(ctx.destination);
-            osc2.start(ctx.currentTime);
-            osc2.stop(ctx.currentTime + 0.04);
-
-            // ============================================
-            // 3️⃣ ضوضاء معدنية (تأثير "الصدمة")
-            // ============================================
-            const bufferSize = ctx.sampleRate * 0.015;
-            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-
-            for (let i = 0; i < bufferSize; i++) {
+            for (let i = 0; i < clickBufferSize; i++) {
                 const t = i / ctx.sampleRate;
-                // ضوضاء بيضاء مع تخميد سريع
-                data[i] = (Math.random() * 2 - 1) * Math.exp(-t * 80);
-                // إضافة نغمة معدنية خفيفة للضوضاء
-                data[i] += Math.sin(2 * Math.PI * 2000 * t) * 0.15 * Math.exp(-t * 60);
+                // تخميد أسي حاد جدًا لإعطاء صوت النقرة النظيفة دون ذيل خشونة
+                clickData[i] = (Math.random() * 2 - 1) * Math.exp(-t * 900);
             }
 
-            const noiseSource = ctx.createBufferSource();
-            noiseSource.buffer = buffer;
+            const clickSource = ctx.createBufferSource();
+            clickSource.buffer = clickBuffer;
 
-            const gainNoise = ctx.createGain();
-            gainNoise.gain.setValueAtTime(vol * 0.25, ctx.currentTime);
-            gainNoise.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.015);
+            const clickGain = ctx.createGain();
+            clickGain.gain.setValueAtTime(vol * 0.9, ctx.currentTime);
+            clickGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.008);
 
-            noiseSource.connect(gainNoise);
-            gainNoise.connect(ctx.destination);
-            noiseSource.start(ctx.currentTime);
-            noiseSource.stop(ctx.currentTime + 0.015);
+            clickSource.connect(clickGain);
+            clickGain.connect(ctx.destination);
+            clickSource.start(ctx.currentTime);
+            clickSource.stop(ctx.currentTime + 0.008);
 
             // ============================================
-            // 4️⃣ تأثير "الرنين" المتأخر (صدى معدني خفيف)
+            // 2️⃣ النغمة الهيكلية للكرة (Body Resonance)
             // ============================================
-            if (intensity > 0.4) {
-                const osc3 = ctx.createOscillator();
-                const gain3 = ctx.createGain();
+            // تردد نقي ومرتفع يمثل رنين معدن الكرات المصمتة
+            const oscBody = ctx.createOscillator();
+            const gainBody = ctx.createGain();
 
-                osc3.frequency.setValueAtTime(baseFreq * 0.6, ctx.currentTime + 0.02);
-                osc3.type = 'sine';
-                gain3.gain.setValueAtTime(vol * 0.15, ctx.currentTime + 0.02);
-                gain3.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+            // تردد حاد يتراوح بين 1500Hz و 2200Hz يناسب كرات الصلب الصغيرة
+            const bodyFreq = 5800 + (Math.random() * 300) + (intensity * 100);
+            oscBody.frequency.setValueAtTime(bodyFreq, ctx.currentTime);
+            // انخفاض سريع طفيف في التردد لمحاكاة تلاشي الضغط
+            oscBody.frequency.exponentialRampToValueAtTime(bodyFreq * 0.85, ctx.currentTime + 0.02);
 
-                osc3.connect(gain3);
-                gain3.connect(ctx.destination);
-                osc3.start(ctx.currentTime + 0.02);
-                osc3.stop(ctx.currentTime + 0.08);
-            }
+            oscBody.type = 'sine'; // موجة جيبية نقية لتعكس طبيعة الكرة المصمتة
+            gainBody.gain.setValueAtTime(vol * 0.6, ctx.currentTime);
+            gainBody.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.025); // رنين قصير جداً 25 مللي ثانية
+
+            oscBody.connect(gainBody);
+            gainBody.connect(ctx.destination);
+            oscBody.start(ctx.currentTime);
+            oscBody.stop(ctx.currentTime + 0.025);
+
+            // ============================================
+            // 3️⃣ الرنين العالي والافتراق (High Clank Harmonics)
+            // ============================================
+            // نغمة ثانوية بتردد أعلى وموجة Triangle لإعطاء اللمعان المعدني لحظة الارتداد
+            const oscMetallic = ctx.createOscillator();
+            const gainMetallic = ctx.createGain();
+
+            const metallicFreq = bodyFreq * 2.3 + (Math.random() * 150);
+            oscMetallic.frequency.setValueAtTime(metallicFreq, ctx.currentTime);
+            oscMetallic.type = 'triangle';
+
+            gainMetallic.gain.setValueAtTime(vol * 0.3, ctx.currentTime);
+            gainMetallic.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.018); // ينتهي قبل النغمة الأساسية
+
+            oscMetallic.connect(gainMetallic);
+            gainMetallic.connect(ctx.destination);
+            oscMetallic.start(ctx.currentTime);
+            oscMetallic.stop(ctx.currentTime + 0.018);
 
         } catch (e) {
-            console.warn('خطأ في تشغيل الصوت المعدني:', e);
+            console.warn('خطأ في تشغيل صوت ارتطام البندول:', e);
         }
     }
 
-    // ✅ نسخة احتياطية: صوت بسيط (في حال فشل الصوت المعقد)
+    // نسخة احتياطية مبسطة وسريعة الأدء
     playSimpleHit(intensity = 1.0) {
         if (!this.enabled) return;
 
@@ -149,19 +124,18 @@ export class SoundManager {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
 
-            const freq = 800 + Math.random() * 400;
+            const freq = 1800 + Math.random() * 200;
             osc.frequency.setValueAtTime(freq, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(freq * 0.2, ctx.currentTime + 0.05);
             osc.type = 'sine';
 
-            const vol = Math.min(this.volume * intensity * 1.2, 0.5);
+            const vol = Math.min(this.volume * intensity * 1.3, 0.6);
             gain.gain.setValueAtTime(vol, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.02);
 
             osc.connect(gain);
             gain.connect(ctx.destination);
             osc.start(ctx.currentTime);
-            osc.stop(ctx.currentTime + 0.05);
+            osc.stop(ctx.currentTime + 0.02);
         } catch (e) {
             console.warn('خطأ في تشغيل الصوت البسيط:', e);
         }

@@ -126,7 +126,7 @@ html {
 }
 
 /* ============================================
-   📌 TOGGLE BUTTONS - أزرار الفتح والإغلاق
+   📌 TOGGLE BUTTONS - أزرار الفتح والإغلاق (المعدلة)
    ============================================ */
 
 .toggle-btn {
@@ -135,38 +135,53 @@ html {
     transform: translateY(-50%);
     width: 44px;
     height: 44px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: rgba(15, 15, 25, 0.85);
+    border: 2px solid rgba(255, 255, 255, 0.15);
     color: white;
     border-radius: 50%;
     cursor: pointer;
     backdrop-filter: blur(12px);
-    font-size: 18px;
+    font-size: 20px;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-    z-index: 20;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    z-index: 999;
 }
 
 .toggle-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.15);
     border-color: var(--accent-cyan);
-    transform: translateY(-50%) scale(1.08);
-    box-shadow: 0 0 24px rgba(0, 212, 255, 0.2);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.25);
 }
 
 .toggle-btn:active {
     transform: translateY(-50%) scale(0.92);
 }
 
+/* ✅ زر لوحة البيانات (📊) - يظهر على يسار الشاشة */
 .left-panel .toggle-btn {
     right: -50px;
 }
 
+/* ✅ زر لوحة التحكم (⚙️) - يظهر على يمين الشاشة */
 .right-panel .toggle-btn {
     left: -50px;
+}
+
+/* ✅ عند تصغير اللوحة، يبقى الزر ظاهراً */
+.left-panel.collapsed .toggle-btn {
+    right: 10px;
+    background: rgba(0, 212, 255, 0.2);
+    border-color: rgba(0, 212, 255, 0.3);
+}
+
+.right-panel.collapsed .toggle-btn {
+    left: 10px;
+    background: rgba(123, 104, 238, 0.2);
+    border-color: rgba(123, 104, 238, 0.3);
 }
 
 /* ============================================
@@ -601,3 +616,5 @@ select option {
 .value-updated {
     animation: valueFlash 0.3s ease;
 }
+
+

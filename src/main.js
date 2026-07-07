@@ -29,8 +29,9 @@ class Application {
         // ✅ تمرير مدير الصوت إلى PhysicsEngine
         PhysicsEngine.setSoundManager(this.soundManager);
 
-        // 3. ربط واجهات التحكم والبيانات
-        this.controlPanel = new ControlPanel(this.simManager, this.sceneSetup);
+        // ✅ ✅ ✅ تمرير soundManager إلى ControlPanel ✅ ✅ ✅
+        this.controlPanel = new ControlPanel(this.simManager, this.sceneSetup, this.soundManager);
+
         this.dataPanel = new DataPanel(this.simManager);
 
         // 4. تهيئة عناصر التحكم بالفأرة
