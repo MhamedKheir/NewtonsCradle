@@ -8,7 +8,8 @@ import {
     buildBallVisuals,
     buildInteractionHelpers,
     updateBallVisuals,
-    removeBallVisuals
+    removeBallVisuals,
+    rebuildBallMesh
 } from '../scene/pendulumVisuals.js';
 
 export class SimulationManager {
@@ -193,69 +194,124 @@ export class SimulationManager {
     // ✅ توليد الكرات مع التصميم البصري
     // ============================================
     generateBalls() {
-        this.balls.forEach(b => {
-            removeBallVisuals(b);
-        });
-        this.balls = [];
+    this.balls.forEach(b => {
+        removeBallVisuals(b);
+    });
+    this.balls = [];
 
-        const count = Config.balls.count || 6;
+    const count = Config.balls.count || 6;
 
-        // حساب أنصاف الأقطار
-        const radii = [];
-        for (let i = 0; i < count; i++) {
-            let radius = Config.balls.radius;
-            if (this.customMasses && this.customMasses[i] !== undefined) {
-                const baseMass = Config.balls.defaultMass || 1.0;
-                const massMultiplier = this.customMasses[i] / baseMass;
-                const radiusScale = Math.cbrt(massMultiplier);
-                radius = Config.balls.radius * radiusScale;
-            }
-            radii.push(radius);
+    // حساب أنصاف الأقطار
+    const radii = [];
+    for (let i = 0; i < count; i++) {
+        let radius = Config.balls.radius;
+        if (this.customMasses && this.customMasses[i] !== undefined) {
+            const baseMass = Config.balls.defaultMass || 1.0;
+            const massMultiplier = this.customMasses[i] / baseMass;
+            const radiusScale = Math.cbrt(massMultiplier);
+            radius = Config.balls.radius * radiusScale;
         }
+        radii.push(radius);
+    }
 
-        // حساب المواضع
-        const positions = [];
-        const spacing = 0.01;
-        let totalWidth = 0;
-        for (let i = 0; i < count; i++) {
-            totalWidth += radii[i] * 2;
-            if (i < count - 1) totalWidth += spacing;
-        }
-        let startX = -totalWidth / 2 + radii[0];
+    // ✅ حساب المواضع (نفس منطق updateBallsPositions)
+    const positions = [];
+    const spacing = 0.01;
+    let totalWidth = 0;
+    for (let i = 0; i < count; i++) {
+        totalWidth += radii[i] * 2;
+        if (i < count - 1) totalWidth += spacing;
+    }
+    let startX = -totalWidth / 2 + radii[0];
 
-        for (let i = 0; i < count; i++) {
-            if (i === 0) {
-                positions.push(startX);
-            } else {
-                const distance = radii[i - 1] + radii[i] + spacing;
-                positions.push(positions[i - 1] + distance);
-            }
-        }
-
-        // إنشاء الكرات
-        for (let i = 0; i < count; i++) {
-            const pivotX = positions[i];
-            const pivot = new THREE.Vector3(pivotX, 9, 0);
-            const ball = new PendulumBall(i, pivot, this.scene);
-
-            // ✅ بناء الشكل البصري (الشخص الثاني)
-            buildBallVisuals(ball);
-            buildInteractionHelpers(ball);
-
-            // تطبيق الكتلة المخصصة
-            if (this.customMasses && this.customMasses[i] !== undefined) {
-                ball.mass = this.customMasses[i];
-                const baseMass = Config.balls.defaultMass || 1.0;
-                const massMultiplier = ball.mass / baseMass;
-                const radiusScale = Math.cbrt(massMultiplier);
-                const newRadius = Config.balls.radius * radiusScale;
-                ball.radius = newRadius;
-                updateBallVisuals(ball);
-            }
-
-            this.balls.push(ball);
+    for (let i = 0; i < count; i++) {
+        if (i === 0) {
+            positions.push(startX);
+        } else {
+            const distance = radii[i - 1] + radii[i] + spacing;
+            positions.push(positions[i - 1] + distance);
         }
     }
+
+    // إنشاء الكرات
+    for (let i = 0; i < count; i++) {
+        const pivotX = positions[i];
+        const pivot = new THREE.Vector3(pivotX, 9, 0);
+        const ball = new PendulumBall(i, pivot, this.scene);
+
+        // بناء الشكل البصري
+        buildBallVisuals(ball);
+        buildInteractionHelpers(ball);
+
+        // تطبيق الكتلة المخصصة
+        if (this.customMasses && this.customMasses[i] !== undefined) {
+            const newRadius = ball.setMass(this.customMasses[i]);
+            rebuildBallMesh(ball, newRadius);
+        }
+
+        this.balls.push(ball);
+    }
+}
+
+    updateBallsPositions() {
+    const count = this.balls.length;
+    if (count === 0) return;
+
+    // ✅ 1. حساب أنصاف الأقطار الحالية
+    const radii = this.balls.map(ball => ball.radius);
+
+    // ✅ 2. حساب المواضع الجديدة
+    const positions = [];
+    const spacing = 0.01; // فراق بسيط بين الكرات
+
+    let totalWidth = 0;
+    for (let i = 0; i < count; i++) {
+        totalWidth += radii[i] * 2;
+        if (i < count - 1) totalWidth += spacing;
+    }
+
+    let startX = -totalWidth / 2 + radii[0];
+
+    for (let i = 0; i < count; i++) {
+        if (i === 0) {
+            positions.push(startX);
+        } else {
+            const distance = radii[i - 1] + radii[i] + spacing;
+            positions.push(positions[i - 1] + distance);
+        }
+    }
+
+    // ✅ 3. تحديث نقطة التعليق (pivot) لكل كرة
+    for (let i = 0; i < count; i++) {
+        const ball = this.balls[i];
+        const pivotX = positions[i];
+        ball.pivot.x = pivotX;
+
+        // ✅ تحديث الموضع مع الحفاظ على الزاوية
+        ball.position.x = ball.pivot.x + ball.length * Math.sin(ball.angle);
+        ball.position.y = ball.pivot.y - ball.length * Math.cos(ball.angle);
+        ball.position.z = ball.pivot.z;
+
+        // ✅ تحديث البصريات
+        updateBallVisuals(ball);
+    }
+}
+
+    updateBallSize(ball, newRadius) {
+    if (!ball) return;
+
+    // 1. تحديث نصف القطر
+    ball.radius = newRadius;
+
+    // 2. إعادة بناء المجسم
+    rebuildBallMesh(ball, newRadius);
+
+    // 3. ✅ ✅ ✅ إعادة توزيع جميع الكرات ✅ ✅ ✅
+    this.updateBallsPositions();
+
+    // 4. تحديث الخيوط والحلقة
+    updateBallVisuals(ball);
+}
 
     // ✅ تحديث البصريات
     updateBallVisualsAll() {

@@ -385,25 +385,39 @@ if (this.btnToggleControlTitle) {
     // ============================================
 
     applyMassChange() {
-        if (!this.simManager || !this.simManager.balls) {
-            console.warn('لا توجد كرات لتعديل وزنها');
-            return;
-        }
-
-        const ballIndex = parseInt(this.selectBall.value);
-        const massMultiplier = parseFloat(this.selectMass.value);
-        const baseMass = Config.balls.defaultMass || 1.0;
-        const newMass = baseMass * massMultiplier;
-
-        if (this.simManager.setCustomMass) {
-            this.simManager.setCustomMass(ballIndex, newMass);
-        }
-
-        this.simManager.generateBalls();
-        this.updateMassStatus();
-
-        console.log(`✅ تم تغيير الكرة ${ballIndex + 1} إلى كتلة ${newMass.toFixed(2)} كغ`);
+    if (!this.simManager || !this.simManager.balls) {
+        console.warn('لا توجد كرات لتعديل وزنها');
+        return;
     }
+
+    const ballIndex = parseInt(this.selectBall.value);
+    const massMultiplier = parseFloat(this.selectMass.value);
+    const baseMass = Config.balls.defaultMass || 1.0;
+    const newMass = baseMass * massMultiplier;
+
+    // ✅ جلب الكرة المحددة
+    const ball = this.simManager.balls[ballIndex];
+    if (!ball) {
+        console.warn('الكرة غير موجودة');
+        return;
+    }
+
+    // ✅ 1. تغيير الكتلة وتحديث نصف القطر
+    const newRadius = ball.setMass(newMass);
+
+    // ✅ 2. حفظ الكتلة المخصصة
+    if (this.simManager.setCustomMass) {
+        this.simManager.setCustomMass(ballIndex, newMass);
+    }
+
+    // ✅ 3. تحديث الشكل البصري للكرة (إعادة بناء المجسم)
+    this.simManager.updateBallSize(ball, newRadius);
+
+    // ✅ 4. تحديث واجهة المستخدم
+    this.updateMassStatus();
+
+    console.log(`✅ تم تغيير الكرة ${ballIndex + 1}: الكتلة = ${newMass.toFixed(2)} كغ، نصف القطر = ${newRadius.toFixed(3)} م`);
+}
 
     updateMassStatus() {
         if (!this.massStatus) return;

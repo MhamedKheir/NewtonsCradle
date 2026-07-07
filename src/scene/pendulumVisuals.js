@@ -58,6 +58,39 @@ export function buildBallVisuals(ball) {
     scene.add(ball.stringLine2);
 }
 
+export function rebuildBallMesh(ball, newRadius) {
+    if (!ball || !ball.mesh) return;
+
+    const scene = ball.scene;
+    const oldMaterial = ball.material;
+    const oldPosition = ball.position.clone();
+    const oldUserData = ball.mesh.userData;
+    const oldCastShadow = ball.mesh.castShadow;
+    const oldReceiveShadow = ball.mesh.receiveShadow;
+
+    // 1. حذف المجسم القديم
+    if (ball.mesh) {
+        ball.mesh.geometry.dispose();
+        if (ball.mesh.parent) {
+            ball.mesh.parent.remove(ball.mesh);
+        }
+    }
+
+    // 2. إنشاء مجسم جديد بالحجم الجديد
+    const ballGeo = new THREE.SphereGeometry(newRadius, 64, 64);
+    const newMesh = new THREE.Mesh(ballGeo, oldMaterial);
+    newMesh.castShadow = oldCastShadow;
+    newMesh.receiveShadow = oldReceiveShadow;
+    newMesh.userData = oldUserData;
+    newMesh.position.copy(oldPosition);
+
+    ball.mesh = newMesh;
+    scene.add(newMesh);
+
+    // 3. تحديث الحلقة والخيوط
+    updateBallVisuals(ball);
+}
+
 /**
  * بناء مساعدات التفاعل (مسار السحب المتوقع)
  * مسؤولية: الشخص الثاني (3D Scene)

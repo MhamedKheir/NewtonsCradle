@@ -133,13 +133,16 @@ export class PendulumBall {
     // ✅ تغيير الكتلة
     // ============================================
     setMass(newMass) {
-        this.mass = newMass;
-        const baseMass = Config.balls.defaultMass || 1.0;
-        const massMultiplier = newMass / baseMass;
-        const radiusScale = Math.cbrt(massMultiplier);
-        this.radius = Config.balls.radius * radiusScale;
-        // التحديث البصري يتم بواسطة الشخص الثاني عبر simulation.js
-    }
+    this.mass = newMass;
+    const baseMass = Config.balls.defaultMass || 1.0;
+    const massMultiplier = newMass / baseMass;
+    const radiusScale = Math.cbrt(massMultiplier);
+    const newRadius = Config.balls.radius * radiusScale;
+    this.radius = newRadius;
+
+    // ✅ إرجاع نصف القطر الجديد
+    return newRadius;
+}
 
     // ============================================
     // ✅ دوال السحب
