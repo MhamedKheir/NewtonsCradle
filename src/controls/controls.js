@@ -2,6 +2,8 @@
 
 import * as THREE from 'three';
 import { Config } from '../config/config.js';
+// ✅ استيراد دوال الحالة من pendulumVisuals.js
+import { setHoverState, setSelectedState } from '../scene/pendulumVisuals.js';
 
 export function setupKeyboardShortcuts(simManager, sceneSetup) {
     const raycaster = new THREE.Raycaster();
@@ -19,8 +21,6 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     }
-
-
 
     function updateAngleUI(angle) {
         if (!Config.mouseControl.showAngle) return;
@@ -59,15 +59,15 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
             const hitMesh = intersects[0].object;
             const ball = simManager.balls.find(b => b.mesh === hitMesh);
             if (ball && ball !== hoveredBall) {
-                if (hoveredBall) hoveredBall.setHoverState(false);
+                if (hoveredBall) setHoverState(hoveredBall, false);
                 hoveredBall = ball;
-                hoveredBall.setHoverState(true);
+                setHoverState(hoveredBall, true);
                 dom.style.cursor = 'grab';
             }
             if (sceneSetup.controls) sceneSetup.controls.enabled = false;
         } else {
             if (hoveredBall) {
-                hoveredBall.setHoverState(false);
+                setHoverState(hoveredBall, false);
                 hoveredBall = null;
                 dom.style.cursor = 'default';
             }
@@ -109,14 +109,14 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
                         ball.velocity.set(0, 0, 0);
                         ball.angularVelocity = 0;
                         ball.angularAcceleration = 0;
-                        ball.setSelectedState(true);
+                        setSelectedState(ball, true);
 
                         if (mode === '2d') {
                             ball.mouseTargetAngle = ball.angle;
                         }
                     } else {
                         ball.isBeingDragged = false;
-                        ball.setSelectedState(false);
+                        setSelectedState(ball, false);
                     }
                 });
             }
@@ -182,7 +182,6 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
             const returnSpeed = Config.mouseControl.returnSpeed || 1.0;
 
             if (mode === '3d') {
-                // ✅ إفلات 3D (نفس السرعة)
                 const displacement = selectedBall.position.clone().sub(selectedBall.pivot);
                 const angle = Math.atan2(displacement.x, -displacement.y);
                 const velocityMagnitude = Math.sqrt(2 * g * L * (1 - Math.cos(angle))) * returnSpeed;
@@ -195,13 +194,8 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
                 }
                 selectedBall.velocity.copy(direction);
             } else {
-                // ✅ إفلات 2D (مع تخفيف السرعة)
                 const angle = selectedBall.angle;
-
-                // ✅ عامل تخفيف السرعة (جربه بين 0.5 و 0.9)
                 const speedFactor = 0.7;
-
-
                 const velocityMagnitude = Math.sqrt(2 * g * L * (1 - Math.cos(angle))) * speedFactor * returnSpeed;
                 const direction = angle > 0 ? -1 : 1;
                 selectedBall.angularVelocity = direction * velocityMagnitude / L;
@@ -216,7 +210,7 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
 
             selectedBall.isBeingDragged = false;
             selectedBall.mouseTargetPosition = null;
-            selectedBall.setSelectedState(false);
+            setSelectedState(selectedBall, false);
             selectedBall = null;
             isDragging = false;
             Config.state.isPaused = false;

@@ -1,6 +1,5 @@
 // src/main.js
 
-// 🆕 أضف هذين السطرين
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
@@ -11,7 +10,6 @@ import { PhysicsEngine } from './physics/physics.js';
 import { setupKeyboardShortcuts } from './controls/controls.js';
 import { ControlPanel } from './ui/controlPanel.js';
 import { DataPanel } from './ui/dataPanel.js';
-// ✅ استيراد مدير الصوت
 import { SoundManager } from './audio/soundManager.js';
 
 class Application {
@@ -23,28 +21,26 @@ class Application {
         this.sceneSetup = new SceneSetup('canvas-container');
         setupLighting(this.sceneSetup.scene);
 
-        // 2. تمرير الـ renderer إلى مدير المحاكاة
+        // 2. مدير المحاكاة (الشخص الثاني)
         this.simManager = new SimulationManager(this.sceneSetup.scene, this.sceneSetup.renderer);
 
-        // ✅ تمرير مدير الصوت إلى PhysicsEngine
+        // 3. ربط الصوت بالفيزياء (الشخص الخامس)
         PhysicsEngine.setSoundManager(this.soundManager);
 
-        // ✅ ✅ ✅ تمرير soundManager إلى ControlPanel ✅ ✅ ✅
+        // 4. واجهات التحكم (الشخص الرابع)
         this.controlPanel = new ControlPanel(this.simManager, this.sceneSetup, this.soundManager);
-
         this.dataPanel = new DataPanel(this.simManager);
 
-        // 4. تهيئة عناصر التحكم بالفأرة
+        // 5. التفاعل (الشخص الرابع)
         setupKeyboardShortcuts(this.simManager, this.sceneSetup);
 
         this.clock = new THREE.Clock();
         this.animate();
 
-        // ✅ تهيئة الصوت عند أول تفاعل مع المستخدم
+        // 6. تهيئة الصوت عند أول تفاعل
         this.initAudioOnInteraction();
     }
 
-    // ✅ تهيئة الصوت عند أول نقرة أو لمسة (مطلوب في بعض المتصفحات)
     initAudioOnInteraction() {
         const events = ['click', 'touchstart', 'keydown'];
         const init = () => {
@@ -59,26 +55,28 @@ class Application {
 
         const dt = this.clock.getDelta();
 
-        // معالجة خطوات الحركة الفيزيائية
+        // ✅ 1. الفيزياء (الشخص الثالث)
         PhysicsEngine.update(this.simManager.balls, dt);
 
-        // مزامنة الأشكال ثلاثية الأبعاد
-        this.simManager.balls.forEach(ball => ball.updateVisuals());
+        // ✅ 2. تحديث البصريات (الشخص الثاني)
+        // ✅ استخدم updateBallVisualsAll بدلاً من forEach
+        this.simManager.updateBallVisualsAll();
 
+        // ✅ 3. المرآة (الشخص الثاني)
+        this.simManager.updateMirrorReflection();
 
-        // تحديث الكاميرا الحرة
+        // ✅ 4. الكاميرا (الشخص الثاني)
         this.sceneSetup.controls.update();
 
-        // الحسابات والتحليلات
+        // ✅ 5. المقاييس والبيانات (الشخص الرابع)
         this.simManager.calculateGlobalMetrics();
         this.dataPanel.update();
 
-        // رندرة المشهد النهائي
+        // ✅ 6. العرض (الشخص الثاني)
         this.sceneSetup.renderer.render(this.sceneSetup.scene, this.sceneSetup.camera);
     }
 }
 
-// الإقلاع التلقائي للتطبيق عند تحميل الصفحة
 window.addEventListener('DOMContentLoaded', () => {
     new Application();
 });

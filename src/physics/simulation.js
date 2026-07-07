@@ -4,6 +4,12 @@ import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { Config } from '../config/config.js';
 import { PendulumBall } from './pendulum.js';
+import {
+    buildBallVisuals,
+    buildInteractionHelpers,
+    updateBallVisuals,
+    removeBallVisuals
+} from '../scene/pendulumVisuals.js';
 
 export class SimulationManager {
     constructor(scene, renderer) {
@@ -13,12 +19,8 @@ export class SimulationManager {
 
         this.initMaterials();
         this.buildCradleStructure();
-        this.setupRealisticSunlight();
         this.generateBalls();
     }
-
-
-
 
     initMaterials() {
         this.woodTexture = this.createWoodTexture();
@@ -36,7 +38,7 @@ export class SimulationManager {
         });
 
         this.baseMode = Config.environment.baseMode || 'mirror';
-
+        this.customMasses = {};
     }
 
     createWoodTexture() {
@@ -75,13 +77,10 @@ export class SimulationManager {
         return texture;
     }
 
-    setupRealisticSunlight() {
-        // ✅ الضوء يتم التحكم به من scene/lighting.js - لا نضيف ضوء إضافي
-        // لتجنب تضارب الظلال من اتجاهات متعددة
-    }
-
+    // ============================================
+    // ✅ بناء هيكل البندول (الإطار، القاعدة، المرآة)
+    // ============================================
     buildCradleStructure() {
-        // ✅ مادة فضية براقة عالية الجودة
         const frameMat = new THREE.MeshStandardMaterial({
             color: 0xffffff,
             metalness: 0.98,
@@ -89,9 +88,9 @@ export class SimulationManager {
             envMapIntensity: 2.5
         });
 
-        // ✅ أعمدة رأسية أثخن وأكثر قوة - مرفوعة
         const tableTopY = 3.4;
 
+        // القضبان الأفقية
         const barGeo = new THREE.CylinderGeometry(0.14, 0.14, 11, 24);
         const frontBar = new THREE.Mesh(barGeo, frameMat);
         frontBar.rotation.z = Math.PI / 2;
@@ -107,7 +106,7 @@ export class SimulationManager {
         backBar.receiveShadow = true;
         this.scene.add(backBar);
 
-        // ✅ أعمدة الدعم أثخن - مرفوعة
+        // الأعمدة الرأسية
         const pillarGeo = new THREE.CylinderGeometry(0.12, 0.12, 5.5, 24);
         const pillarY = tableTopY + 2.75;
         const pillarPositions = [
@@ -124,6 +123,7 @@ export class SimulationManager {
             this.scene.add(pillar);
         });
 
+        // القاعدة والمرآة
         const baseWidth = 11.9;
         const baseDepth = 4.2;
         const mirrorThickness = 0.045;
@@ -138,6 +138,7 @@ export class SimulationManager {
 
         const baseGeo = new THREE.PlaneGeometry(baseWidth, baseDepth);
 
+        // قاعدة الخشب
         this.cradleBaseWood = new THREE.Mesh(baseGeo, this.woodBaseMaterial);
         this.cradleBaseWood.rotation.x = -Math.PI / 2;
         this.cradleBaseWood.position.set(0, baseY, 0);
@@ -145,6 +146,7 @@ export class SimulationManager {
         this.cradleBaseWood.receiveShadow = true;
         this.scene.add(this.cradleBaseWood);
 
+        // ✅ المرآة العاكسة (مع الشخص الثاني)
         const reflectorGeo = baseGeo;
         const mirrorSize = new THREE.Vector2();
         this.renderer.getDrawingBufferSize(mirrorSize);
@@ -181,28 +183,24 @@ export class SimulationManager {
         if (this.cradleBaseMirror) {
             this.cradleBaseMirror.visible = nextMode === 'mirror';
         }
-
         if (this.cradleBaseWood) {
             this.cradleBaseWood.visible = nextMode === 'wood';
         }
-
         this.cradleBase = nextMode === 'mirror' ? this.cradleBaseMirror : this.cradleBaseWood;
     }
 
+    // ============================================
+    // ✅ توليد الكرات مع التصميم البصري
+    // ============================================
     generateBalls() {
-        // تنظيف الكرات القديمة
         this.balls.forEach(b => {
-            this.scene.remove(b.mesh);
-            this.scene.remove(b.topRing);
-            this.scene.remove(b.stringLine1);
-            this.scene.remove(b.stringLine2);
-            this.scene.remove(b.predictedPath);
+            removeBallVisuals(b);
         });
         this.balls = [];
 
         const count = Config.balls.count || 6;
 
-        // ✅ حساب أنصاف الأقطار الفعلية لكل كرة
+        // حساب أنصاف الأقطار
         const radii = [];
         for (let i = 0; i < count; i++) {
             let radius = Config.balls.radius;
@@ -215,107 +213,94 @@ export class SimulationManager {
             radii.push(radius);
         }
 
-        // ✅ حساب المواضع بحيث تكون الكرات متلامسة
+        // حساب المواضع
         const positions = [];
-        const spacing = 0.01; // فراق بسيط بين الكرات
-
-        // الكرة الأولى في المنتصف أو في البداية
-
-
-        // نبدأ من أقصى اليسار
-        // نحسب العرض الكلي للمجموعة
+        const spacing = 0.01;
         let totalWidth = 0;
         for (let i = 0; i < count; i++) {
             totalWidth += radii[i] * 2;
             if (i < count - 1) totalWidth += spacing;
         }
-
-        // نقطة البداية (أقصى اليسار)
         let startX = -totalWidth / 2 + radii[0];
 
         for (let i = 0; i < count; i++) {
             if (i === 0) {
                 positions.push(startX);
             } else {
-                // المسافة بين مركز الكرة i-1 والكرة i
                 const distance = radii[i - 1] + radii[i] + spacing;
                 positions.push(positions[i - 1] + distance);
             }
         }
 
-        // ✅ إنشاء الكرات في المواضع المحسوبة مع رفع البندول
-
+        // إنشاء الكرات
         for (let i = 0; i < count; i++) {
             const pivotX = positions[i];
             const pivot = new THREE.Vector3(pivotX, 9, 0);
             const ball = new PendulumBall(i, pivot, this.scene);
 
-            // ✅ تطبيق الكتلة المخصصة إذا كانت موجودة
+            // ✅ بناء الشكل البصري (الشخص الثاني)
+            buildBallVisuals(ball);
+            buildInteractionHelpers(ball);
+
+            // تطبيق الكتلة المخصصة
             if (this.customMasses && this.customMasses[i] !== undefined) {
                 ball.mass = this.customMasses[i];
-
                 const baseMass = Config.balls.defaultMass || 1.0;
                 const massMultiplier = ball.mass / baseMass;
                 const radiusScale = Math.cbrt(massMultiplier);
                 const newRadius = Config.balls.radius * radiusScale;
                 ball.radius = newRadius;
-
-                this.rebuildBallVisuals(ball, newRadius);
+                updateBallVisuals(ball);
             }
 
             this.balls.push(ball);
         }
     }
 
-    rebuildBallVisuals(ball, newRadius) {
-        if (!ball || !ball.mesh) return;
-
-        const scene = this.scene;
-        const oldMaterial = ball.material;
-        const oldPosition = ball.position.clone();
-        const oldUserData = ball.mesh.userData;
-
-        // حذف المجسم القديم
-        if (ball.mesh) {
-            ball.mesh.geometry.dispose();
-            if (ball.mesh.parent) {
-                ball.mesh.parent.remove(ball.mesh);
-            }
-        }
-
-        // إنشاء مجسم جديد
-        const ballGeo = new THREE.SphereGeometry(newRadius, 64, 64);
-        const newMesh = new THREE.Mesh(ballGeo, oldMaterial);
-        newMesh.castShadow = true;
-        newMesh.receiveShadow = true;
-        newMesh.userData = oldUserData;
-        newMesh.position.copy(oldPosition);
-
-        ball.mesh = newMesh;
-        scene.add(newMesh);
-
-        // ✅ تحديث الحلقة العلوية
-        if (ball.topRing) {
-            const scaleFactor = newRadius / Config.balls.radius;
-            ball.topRing.scale.set(scaleFactor, 1, scaleFactor);
-        }
-
-        // ✅ تحديث الخيوط
-        ball.updateVisuals();
+    // ✅ تحديث البصريات
+    updateBallVisualsAll() {
+        this.balls.forEach(ball => updateBallVisuals(ball));
     }
 
-    resetAllMasses() {
-        this.customMasses = {};
-        this.generateBalls();
-        console.log('🔄 تم إعادة تعيين جميع الكتل إلى القيم الافتراضية');
+    // ✅ حساب المقاييس
+    calculateGlobalMetrics() {
+        let totalKE = 0;
+        let totalPE = 0;
+        let systemMomentum = new THREE.Vector3();
+        this.balls.forEach(ball => {
+            const metrics = ball.getMetrics();
+            totalKE += metrics.ke;
+            totalPE += metrics.pe;
+            systemMomentum.add(metrics.velocity.clone().multiplyScalar(ball.mass));
+        });
+        Config.state.totalEnergy = totalKE + totalPE;
+        Config.state.totalMomentum = systemMomentum.length();
+    }
+
+    resetBalls() {
+        this.balls.forEach(ball => {
+            ball.angle = 0;
+            ball.angularVelocity = 0;
+            ball.angularAcceleration = 0;
+            ball.velocity.set(0, 0, 0);
+            ball.position.set(ball.pivot.x, ball.pivot.y - ball.length, ball.pivot.z);
+        });
+        Config.state.collisionCount = 0;
     }
 
     setCustomMass(index, mass) {
         if (!this.customMasses) this.customMasses = {};
         this.customMasses[index] = mass;
-        console.log(`📝 تم حفظ الكتلة المخصصة للكرة ${index + 1}: ${mass} كغ`);
     }
 
+    resetAllMasses() {
+        this.customMasses = {};
+        this.generateBalls();
+    }
+
+    // ============================================
+    // ✅ دوال سحب الكرات المتجاورة (لـ 2D)
+    // ============================================
     constrainBallToPendulumArc(ball, xPosition) {
         const dx = xPosition - ball.pivot.x;
         const clampedDx = Math.max(-ball.length + 0.0001, Math.min(ball.length - 0.0001, dx));
@@ -357,30 +342,12 @@ export class SimulationManager {
         }
     }
 
-
-    calculateGlobalMetrics() {
-        let totalKE = 0;
-        let totalPE = 0;
-        let systemMomentum = new THREE.Vector3();
-        this.balls.forEach(ball => {
-            const metrics = ball.getMetrics();
-            totalKE += metrics.ke;
-            totalPE += metrics.pe;
-            systemMomentum.add(metrics.velocity.clone().multiplyScalar(ball.mass));
-        });
-        Config.state.totalEnergy = totalKE + totalPE;
-        Config.state.totalMomentum = systemMomentum.length();
-    }
-
-    resetBalls() {
-        this.balls.forEach(ball => {
-            ball.angle = 0;
-            ball.angularVelocity = 0;
-            ball.angularAcceleration = 0;
-            ball.velocity.set(0, 0, 0);
-            ball.position.set(ball.pivot.x, ball.pivot.y - ball.length, ball.pivot.z);
-        });
-        Config.state.collisionCount = 0;
+    rebuildBallVisuals(ball, newRadius) {
+        // إزالة المجسمات القديمة
+        removeBallVisuals(ball);
+        // إنشاء مجسمات جديدة
+        buildBallVisuals(ball);
+        buildInteractionHelpers(ball);
+        updateBallVisuals(ball);
     }
 }
-

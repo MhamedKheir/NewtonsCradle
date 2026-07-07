@@ -61,8 +61,9 @@ export class ControlPanel {
         this.lblSoundVolume = document.getElementById('lbl-sound-volume');
         this.lblSoundStatus = document.getElementById('lbl-sound-status');
 
-        // ✅ أزرار تبديل اللوحات
-        this.toggleDataBtn = document.getElementById('toggle-data');
+         // ✅ أزرار إظهار/إخفاء اللوحات (بجانب العنوان)
+    this.btnToggleDataTitle = document.getElementById('btn-toggle-data-title');
+    this.btnToggleControlTitle = document.getElementById('btn-toggle-control-title');
 
         // ✅ تحذيرات
         if (!this.btnToggleSound) console.warn('⚠️ btn-toggle-sound غير موجود');
@@ -122,6 +123,31 @@ export class ControlPanel {
         // ==========================================
         // 2️⃣ أزرار التحكم الأساسية
         // ==========================================
+
+        if (this.btnToggleDataTitle) {
+    this.btnToggleDataTitle.addEventListener('click', () => {
+        const panel = document.getElementById('data-panel');
+        if (panel) {
+            panel.classList.toggle('collapsed-up');
+            const isCollapsed = panel.classList.contains('collapsed-up');
+            this.btnToggleDataTitle.innerHTML = isCollapsed ? '🔼' : '🔽';
+            this.btnToggleDataTitle.classList.toggle('active', isCollapsed);
+        }
+    });
+}
+
+// ✅ زر طي/فتح لوحة التحكم (يبقى العنوان ظاهر)
+if (this.btnToggleControlTitle) {
+    this.btnToggleControlTitle.addEventListener('click', () => {
+        const panel = document.getElementById('control-panel');
+        if (panel) {
+            panel.classList.toggle('collapsed-up');
+            const isCollapsed = panel.classList.contains('collapsed-up');
+            this.btnToggleControlTitle.innerHTML = isCollapsed ? '🔼' : '🔽';
+            this.btnToggleControlTitle.classList.toggle('active', isCollapsed);
+        }
+    });
+}
 
         // ✅ زر الإيقاف المؤقت
         if (this.btnPause) {
@@ -497,6 +523,32 @@ export class ControlPanel {
                 this.lblSoundStatus.style.color = this.soundManager.enabled ? '#00e676' : '#ff6b6b';
             }
         }
+
+
+        setTimeout(() => {
+    // لوحة البيانات
+    const dataPanel = document.getElementById('data-panel');
+    if (dataPanel && this.btnToggleDataTitle) {
+        const isCollapsed = dataPanel.classList.contains('collapsed-up');
+        this.btnToggleDataTitle.innerHTML = isCollapsed ? '🔼' : '🔽';
+        this.btnToggleDataTitle.classList.toggle('active', isCollapsed);
+        const toggleBtn = document.getElementById('toggle-data');
+        if (toggleBtn) {
+            toggleBtn.style.display = isCollapsed ? 'none' : 'flex';
+        }
+    }
+    // لوحة التحكم
+    const controlPanel = document.getElementById('control-panel');
+    if (controlPanel && this.btnToggleControlTitle) {
+        const isCollapsed = controlPanel.classList.contains('collapsed-up');
+        this.btnToggleControlTitle.innerHTML = isCollapsed ? '🔼' : '🔽';
+        this.btnToggleControlTitle.classList.toggle('active', isCollapsed);
+        const toggleBtn = document.getElementById('toggle-control');
+        if (toggleBtn) {
+            toggleBtn.style.display = isCollapsed ? 'none' : 'flex';
+        }
+    }
+}, 100);
     }
 
     // ============================================

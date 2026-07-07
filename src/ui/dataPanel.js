@@ -13,7 +13,7 @@ export class DataPanel {
 
         this.csvRecords = [];
 
-        this.toggleBtn.addEventListener('click', () => this.panel.classList.toggle('collapsed'));
+        
         this.btnCSV.addEventListener('click', () => this.exportToCSV());
 
         this.buildStructure();
