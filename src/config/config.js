@@ -5,7 +5,7 @@ export const Config = {
         angularDamping: 0.005,
         restitution: 0.98,
         stringLength: 4.4,
-        timeScale: 3.7,
+        timeScale: 4.5,
         subSteps: 80,
         mode: '2d'  // القيمة الافتراضية 2D
     },

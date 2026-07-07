@@ -71,7 +71,7 @@ export class SoundManager {
             const gainBody = ctx.createGain();
 
             // تردد حاد يتراوح بين 1500Hz و 2200Hz يناسب كرات الصلب الصغيرة
-            const bodyFreq = 5800 + (Math.random() * 300) + (intensity * 100);
+            const bodyFreq = 5700 + (Math.random() * 300) + (intensity * 100);
             oscBody.frequency.setValueAtTime(bodyFreq, ctx.currentTime);
             // انخفاض سريع طفيف في التردد لمحاكاة تلاشي الضغط
             oscBody.frequency.exponentialRampToValueAtTime(bodyFreq * 0.85, ctx.currentTime + 0.02);
@@ -124,7 +124,7 @@ export class SoundManager {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
 
-            const freq = 1800 + Math.random() * 200;
+            const freq = 3000 + Math.random() * 200;
             osc.frequency.setValueAtTime(freq, ctx.currentTime);
             osc.type = 'sine';
 
