@@ -78,9 +78,7 @@ export class SimulationManager {
         return texture;
     }
 
-    // ============================================
-    // ✅ بناء هيكل البندول (الإطار، القاعدة، المرآة)
-    // ============================================
+
     buildCradleStructure() {
         const frameMat = new THREE.MeshStandardMaterial({
             color: 0xffffff,
@@ -91,7 +89,7 @@ export class SimulationManager {
 
         const tableTopY = 3.4;
 
-        // القضبان الأفقية
+
         const barGeo = new THREE.CylinderGeometry(0.14, 0.14, 11, 24);
         const frontBar = new THREE.Mesh(barGeo, frameMat);
         frontBar.rotation.z = Math.PI / 2;
@@ -147,7 +145,7 @@ export class SimulationManager {
         this.cradleBaseWood.receiveShadow = true;
         this.scene.add(this.cradleBaseWood);
 
-        // ✅ المرآة العاكسة (مع الشخص الثاني)
+        // المرآة العاكسة
         const reflectorGeo = baseGeo;
         const mirrorSize = new THREE.Vector2();
         this.renderer.getDrawingBufferSize(mirrorSize);
@@ -190,9 +188,7 @@ export class SimulationManager {
         this.cradleBase = nextMode === 'mirror' ? this.cradleBaseMirror : this.cradleBaseWood;
     }
 
-    // ============================================
-    // ✅ توليد الكرات مع التصميم البصري
-    // ============================================
+
     generateBalls() {
     this.balls.forEach(b => {
         removeBallVisuals(b);
@@ -201,7 +197,7 @@ export class SimulationManager {
 
     const count = Config.balls.count || 6;
 
-    // حساب أنصاف الأقطار
+
     const radii = [];
     for (let i = 0; i < count; i++) {
         let radius = Config.balls.radius;
@@ -214,7 +210,7 @@ export class SimulationManager {
         radii.push(radius);
     }
 
-    // ✅ حساب المواضع (نفس منطق updateBallsPositions)
+
     const positions = [];
     const spacing = 0.01;
     let totalWidth = 0;
@@ -233,17 +229,17 @@ export class SimulationManager {
         }
     }
 
-    // إنشاء الكرات
+
     for (let i = 0; i < count; i++) {
         const pivotX = positions[i];
         const pivot = new THREE.Vector3(pivotX, 9, 0);
         const ball = new PendulumBall(i, pivot, this.scene);
 
-        // بناء الشكل البصري
+
         buildBallVisuals(ball);
         buildInteractionHelpers(ball);
 
-        // تطبيق الكتلة المخصصة
+
         if (this.customMasses && this.customMasses[i] !== undefined) {
             const newRadius = ball.setMass(this.customMasses[i]);
             rebuildBallMesh(ball, newRadius);
@@ -257,12 +253,12 @@ export class SimulationManager {
     const count = this.balls.length;
     if (count === 0) return;
 
-    // ✅ 1. حساب أنصاف الأقطار الحالية
+
     const radii = this.balls.map(ball => ball.radius);
 
-    // ✅ 2. حساب المواضع الجديدة
+
     const positions = [];
-    const spacing = 0.01; // فراق بسيط بين الكرات
+    const spacing = 0.01;
 
     let totalWidth = 0;
     for (let i = 0; i < count; i++) {
@@ -281,18 +277,18 @@ export class SimulationManager {
         }
     }
 
-    // ✅ 3. تحديث نقطة التعليق (pivot) لكل كرة
+
     for (let i = 0; i < count; i++) {
         const ball = this.balls[i];
         const pivotX = positions[i];
         ball.pivot.x = pivotX;
 
-        // ✅ تحديث الموضع مع الحفاظ على الزاوية
+
         ball.position.x = ball.pivot.x + ball.length * Math.sin(ball.angle);
         ball.position.y = ball.pivot.y - ball.length * Math.cos(ball.angle);
         ball.position.z = ball.pivot.z;
 
-        // ✅ تحديث البصريات
+
         updateBallVisuals(ball);
     }
 }
@@ -300,25 +296,19 @@ export class SimulationManager {
     updateBallSize(ball, newRadius) {
     if (!ball) return;
 
-    // 1. تحديث نصف القطر
+
     ball.radius = newRadius;
-
-    // 2. إعادة بناء المجسم
     rebuildBallMesh(ball, newRadius);
-
-    // 3. ✅ ✅ ✅ إعادة توزيع جميع الكرات ✅ ✅ ✅
     this.updateBallsPositions();
-
-    // 4. تحديث الخيوط والحلقة
     updateBallVisuals(ball);
 }
 
-    // ✅ تحديث البصريات
+
     updateBallVisualsAll() {
         this.balls.forEach(ball => updateBallVisuals(ball));
     }
 
-    // ✅ حساب المقاييس
+
     calculateGlobalMetrics() {
         let totalKE = 0;
         let totalPE = 0;
@@ -354,9 +344,7 @@ export class SimulationManager {
         this.generateBalls();
     }
 
-    // ============================================
-    // ✅ دوال سحب الكرات المتجاورة (لـ 2D)
-    // ============================================
+
     constrainBallToPendulumArc(ball, xPosition) {
         const dx = xPosition - ball.pivot.x;
         const clampedDx = Math.max(-ball.length + 0.0001, Math.min(ball.length - 0.0001, dx));
@@ -399,9 +387,7 @@ export class SimulationManager {
     }
 
     rebuildBallVisuals(ball, newRadius) {
-        // إزالة المجسمات القديمة
         removeBallVisuals(ball);
-        // إنشاء مجسمات جديدة
         buildBallVisuals(ball);
         buildInteractionHelpers(ball);
         updateBallVisuals(ball);

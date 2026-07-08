@@ -1,6 +1,4 @@
-// src/ui/dataPanel.js
 
-// ✅ هذا الملف لا يحتاج THREE، فقط Config
 import { Config } from '../config/config.js';
 
 export class DataPanel {
@@ -13,7 +11,7 @@ export class DataPanel {
 
         this.csvRecords = [];
 
-        
+
         this.btnCSV.addEventListener('click', () => this.exportToCSV());
 
         this.buildStructure();
@@ -37,7 +35,7 @@ export class DataPanel {
     }
 
     update() {
-        // تحديث القيم العامة
+
         const totalEnergyEl = document.getElementById('val-total-energy');
         const totalMomentumEl = document.getElementById('val-total-momentum');
         const collisionsEl = document.getElementById('val-collisions');
@@ -46,7 +44,7 @@ export class DataPanel {
         if (totalMomentumEl) totalMomentumEl.innerText = Config.state.totalMomentum.toFixed(2);
         if (collisionsEl) collisionsEl.innerText = Config.state.collisionCount;
 
-        // تحديث بيانات كل كرة
+
         this.simManager.balls.forEach(ball => {
             const metrics = ball.getMetrics();
 
@@ -66,7 +64,7 @@ export class DataPanel {
             if (peBar) peBar.style.width = `${pePercent}%`;
         });
 
-        // تسجيل البيانات للتصدير
+       
         if (!Config.state.isPaused && this.csvRecords.length < 300) {
             this.csvRecords.push({
                 timestamp: performance.now().toFixed(0),

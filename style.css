@@ -444,7 +444,7 @@ select option {
     background: linear-gradient(90deg, var(--accent-purple), #9b7bff);
 }
 
-/* ✅ الإحصائيات العامة */
+
 .stats-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -487,107 +487,32 @@ select option {
     color: var(--accent-gold);
 }
 
-/* ============================================
-   📱 RESPONSIVE - التوافق مع الشاشات الصغيرة
-   ============================================ */
 
-@media (max-width: 768px) {
-    .panel {
-        width: 280px;
-        top: 10px;
-        bottom: 10px;
-        border-radius: 14px;
-    }
-
-    .left-panel {
-        left: 10px;
-    }
-    .right-panel {
-        right: 10px;
-    }
-
-    .left-panel.collapsed {
-        transform: translateX(-310px);
-    }
-    .right-panel.collapsed {
-        transform: translateX(310px);
-    }
-
-    .panel-content {
-        padding: 16px;
-    }
-
-    .toggle-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 14px;
-    }
-
-    .left-panel .toggle-btn {
-        right: -42px;
-    }
-    .right-panel .toggle-btn {
-        left: -42px;
-    }
-
-    .stats-container {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .panel {
-        width: 240px;
-        top: 8px;
-        bottom: 8px;
-    }
-
-    .left-panel {
-        left: 8px;
-    }
-    .right-panel {
-        right: 8px;
-    }
-
-    .left-panel.collapsed {
-        transform: translateX(-270px);
-    }
-    .right-panel.collapsed {
-        transform: translateX(270px);
-    }
-}
-/* ============================================
-   📦 PANEL COLLAPSE UP - طي اللوحة للأعلى مع بقاء العنوان
-   ============================================ */
-
-/* ✅ اللوحة في وضعها الطبيعي */
 .panel {
     transition: transform 1.0s cubic-bezier(0.23, 1, 0.32, 1),
                 box-shadow 0.4s ease,
                 border-color 0.4s ease,
                 top 1.0s cubic-bezier(0.23, 1, 0.32, 1),
                 height 1.0s cubic-bezier(0.23, 1, 0.32, 1);
-    overflow: visible !important;  /* مهم عشان الزر الجانبي يبقى ظاهر */
+    overflow: visible !important;
 }
 
-/* ✅ عند طي اللوحة للأعلى */
+
 .panel.collapsed-up {
-    top: 20px !important;  /* تبقى في الأعلى */
-    height: 70px !important;  /* يبقى جزء صغير فقط (العنوان + الزر) */
+    top: 20px !important;
+    height: 70px !important;
     min-height: 70px !important;
     max-height: 70px !important;
     overflow: hidden !important;
     transform: none !important;
-    border-radius: 20px 20px 0 0 !important;  /* زوايا علوية فقط */
+    border-radius: 20px 20px 0 0 !important;
     box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* ✅ عند الطي، نحرك الزر الجانبي مع اللوحة */
 .panel.collapsed-up .toggle-btn {
     display: none !important;  /* إخفاء الزر الجانبي عند الطي */
 }
 
-/* ✅ عند الطي، يبقى العنوان والزر فقط */
 .panel.collapsed-up .panel-content {
     display: flex;
     flex-direction: column;
@@ -608,12 +533,10 @@ select option {
     font-size: 0.95rem;
 }
 
-/* ✅ إخفاء المحتوى عند الطي */
 .panel.collapsed-up .panel-body {
     display: none !important;
 }
 
-/* ✅ زر الطي في العنوان */
 .panel-toggle-title {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -640,7 +563,6 @@ select option {
     color: var(--accent-red);
 }
 
-/* ✅ إعادة ضبط اللوحة عند الفتح */
 .panel:not(.collapsed-up) {
     height: auto !important;
     max-height: none !important;
@@ -658,11 +580,7 @@ select option {
 .panel:not(.collapsed-up) .toggle-btn {
     display: flex !important;
 }
-/* ============================================
-   ✨ ANIMATIONS - أنيميشن إضافي
-   ============================================ */
 
-/* ✅ تأثير نبض خفيف على الأزرار */
 @keyframes pulse-glow {
     0%,
     100% {
@@ -677,7 +595,6 @@ select option {
     animation: pulse-glow 3s ease-in-out infinite;
 }
 
-/* ✅ تأثير ظهور تدريجي للوحة */
 @keyframes slideIn {
     from {
         opacity: 0;
@@ -693,7 +610,6 @@ select option {
     animation: slideIn 0.4s ease-out;
 }
 
-/* ✅ تأثير تغيير لون القيمة عند التحديث */
 @keyframes valueFlash {
     0%,
     100% {

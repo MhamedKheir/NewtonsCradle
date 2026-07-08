@@ -11,12 +11,12 @@ export class PendulumBall {
         this.pivot = initPivot.clone();
         this.length = Config.physics.stringLength;
 
-        // الموضع في 3D
+
         this.position = initPivot.clone().add(new THREE.Vector3(0, -this.length, 0));
         this.velocity = new THREE.Vector3(0, 0, 0);
         this.acceleration = new THREE.Vector3(0, 0, 0);
 
-        // متغيرات 2D
+
         this.angle = 0;
         this.angularVelocity = 0;
         this.angularAcceleration = 0;
@@ -26,13 +26,10 @@ export class PendulumBall {
         this.mouseTargetAngle = 0;
         this.scene = scene;
 
-        // ❌ تم حذف buildVisuals و buildInteractionHelpers من هنا
-        // ✅ سيتم بناؤها بواسطة الشخص الثاني عبر simulation.js
+
     }
 
-    // ============================================
-    // ✅ فيزياء 2D
-    // ============================================
+
     step2D(dt) {
         if (this.isBeingDragged) {
             this.angularVelocity = 0;
@@ -56,9 +53,7 @@ export class PendulumBall {
         this.velocity.set(speed * Math.cos(this.angle), speed * Math.sin(this.angle), 0);
     }
 
-    // ============================================
-    // ✅ فيزياء 3D
-    // ============================================
+
     step3D(dt) {
         if (this.isBeingDragged) return;
 
@@ -94,9 +89,7 @@ export class PendulumBall {
         this.angle = Math.atan2(this.position.x - this.pivot.x, -(this.position.y - this.pivot.y));
     }
 
-    // ============================================
-    // ✅ اختيار الوضع
-    // ============================================
+
     step(dt) {
         if (Config.physics.mode === '3d') {
             this.step3D(dt);
@@ -105,9 +98,7 @@ export class PendulumBall {
         }
     }
 
-    // ============================================
-    // ✅ حساب السرعة الخطية
-    // ============================================
+
     updateVelocity() {
         const speed = this.length * this.angularVelocity;
         this.velocity.set(
@@ -117,9 +108,7 @@ export class PendulumBall {
         );
     }
 
-    // ============================================
-    // ✅ حساب الطاقة
-    // ============================================
+
     getMetrics() {
         const displacement = this.position.clone().sub(this.pivot);
         const angle = Math.atan2(displacement.x, -displacement.y) * (180 / Math.PI);
@@ -129,9 +118,7 @@ export class PendulumBall {
         return { velocity: this.velocity, angle, ke, pe };
     }
 
-    // ============================================
-    // ✅ تغيير الكتلة
-    // ============================================
+
     setMass(newMass) {
     this.mass = newMass;
     const baseMass = Config.balls.defaultMass || 1.0;
@@ -140,13 +127,11 @@ export class PendulumBall {
     const newRadius = Config.balls.radius * radiusScale;
     this.radius = newRadius;
 
-    // ✅ إرجاع نصف القطر الجديد
+    
     return newRadius;
 }
 
-    // ============================================
-    // ✅ دوال السحب
-    // ============================================
+
     setDragPosition(position) {
         this.isBeingDragged = true;
         this.mouseTargetPosition = position.clone();

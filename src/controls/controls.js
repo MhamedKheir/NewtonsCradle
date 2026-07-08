@@ -2,7 +2,7 @@
 
 import * as THREE from 'three';
 import { Config } from '../config/config.js';
-// ✅ استيراد دوال الحالة من pendulumVisuals.js
+
 import { setHoverState, setSelectedState } from '../scene/pendulumVisuals.js';
 
 export function setupKeyboardShortcuts(simManager, sceneSetup) {
@@ -77,7 +77,7 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
         }
     });
 
-    // MouseDown
+
     dom.addEventListener('mousedown', (e) => {
         if (e.button !== 0 || isDragging) return;
 
@@ -123,7 +123,7 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
         }
     });
 
-    // MouseMove
+
     dom.addEventListener('mousemove', (e) => {
         if (!isDragging || !selectedBall) return;
 
@@ -173,7 +173,7 @@ export function setupKeyboardShortcuts(simManager, sceneSetup) {
         }
     });
 
-    // MouseUp
+    
     const handleMouseUp = () => {
         if (isDragging && selectedBall) {
             const mode = Config.physics.mode || '2d';

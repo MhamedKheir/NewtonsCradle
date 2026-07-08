@@ -55,7 +55,7 @@ export class SceneSetup {
     buildGiantRealisticRoom() {
         const size = Config.environment.roomSize;
 
-        // 1. أرضية خشبية طبيعية جميلة
+        // 1. أرضية خشبية
         const floorCanvas = document.createElement('canvas');
         floorCanvas.width = 256;
         floorCanvas.height = 256;
@@ -95,7 +95,7 @@ export class SceneSetup {
         floor.receiveShadow = true;
         this.scene.add(floor);
 
-        // 2. جدران بألوان دافئة مريحة مع ورق جدران مزخرفة
+
         const wallCanvas = document.createElement('canvas');
         wallCanvas.width = 512;
         wallCanvas.height = 512;
@@ -185,7 +185,7 @@ export class SceneSetup {
         }
         const tableTexture = new THREE.CanvasTexture(tableCanvas);
 
-        // ✅ طاولة أكبر وأكثر سمكاً
+
         const tableGeo = new THREE.BoxGeometry(24, 0.8, 24);
         const tableMat = new THREE.MeshStandardMaterial({
             map: tableTexture,
@@ -199,7 +199,7 @@ export class SceneSetup {
         this.table.castShadow = true;
         this.scene.add(this.table);
 
-        // ✅ أرجل الطاولة أطول - موضوعة بشكل صحيح على الأرضية
+        
         const legGeo = new THREE.CylinderGeometry(0.3, 0.3, 8, 16);
         const legPositions = [
             [-11, -1, 11],

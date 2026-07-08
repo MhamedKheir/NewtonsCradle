@@ -55,24 +55,22 @@ export class ControlPanel {
         this.sldReturnSpeed = document.getElementById('sld-return-speed');
         this.lblReturnSpeed = document.getElementById('lbl-return-speed');
 
-        // ✅ عناصر الصوت
+
         this.btnToggleSound = document.getElementById('btn-toggle-sound');
         this.sldSoundVolume = document.getElementById('sld-sound-volume');
         this.lblSoundVolume = document.getElementById('lbl-sound-volume');
         this.lblSoundStatus = document.getElementById('lbl-sound-status');
 
-         // ✅ أزرار إظهار/إخفاء اللوحات (بجانب العنوان)
+
     this.btnToggleDataTitle = document.getElementById('btn-toggle-data-title');
     this.btnToggleControlTitle = document.getElementById('btn-toggle-control-title');
 
-        // ✅ تحذيرات
+
         if (!this.btnToggleSound) console.warn('⚠️ btn-toggle-sound غير موجود');
         if (!this.sldSoundVolume) console.warn('⚠️ sld-sound-volume غير موجود');
     }
 
-    // ============================================
-    // ✅ دالة تحديث واجهة الصوت
-    // ============================================
+
     updateSoundUI() {
         if (!this.soundManager) {
             console.warn('⚠️ soundManager غير موجود');
@@ -94,22 +92,16 @@ export class ControlPanel {
         }
     }
 
-    // ============================================
-    // ✅ ربط الأحداث
-    // ============================================
-    bindEvents() {
-        // ==========================================
-        // 1️⃣ أزرار تبديل اللوحات
-        // ==========================================
 
-        // ✅ زر تبديل لوحة التحكم (⚙️)
+    bindEvents() {
+
+
         if (this.toggleBtn) {
             this.toggleBtn.addEventListener('click', () => {
                 this.panel.classList.toggle('collapsed');
             });
         }
 
-        // ✅ زر تبديل لوحة البيانات (📊)
         if (this.toggleDataBtn) {
             this.toggleDataBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -120,9 +112,6 @@ export class ControlPanel {
             });
         }
 
-        // ==========================================
-        // 2️⃣ أزرار التحكم الأساسية
-        // ==========================================
 
         if (this.btnToggleDataTitle) {
     this.btnToggleDataTitle.addEventListener('click', () => {
@@ -149,7 +138,7 @@ if (this.btnToggleControlTitle) {
     });
 }
 
-        // ✅ زر الإيقاف المؤقت
+        
         if (this.btnPause) {
             this.btnPause.addEventListener('click', () => {
                 Config.state.isPaused = !Config.state.isPaused;
@@ -157,7 +146,7 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ✅ زر إعادة التعيين
+
         if (this.btnReset) {
             this.btnReset.addEventListener('click', () => {
                 this.simManager.balls.forEach(b => {
@@ -175,11 +164,8 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ==========================================
-        // 3️⃣ منزلقات الفيزياء
-        // ==========================================
 
-        // ✅ الجاذبية
+        //  الجاذبية
         if (this.sldGravity) {
             this.sldGravity.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
@@ -188,7 +174,7 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ✅ معامل الارتداد
+        //  معامل الارتداد
         if (this.sldRestitution) {
             this.sldRestitution.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
@@ -197,7 +183,7 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ✅ التخميد الزاوي
+        //  التخميد الزاوي
         if (this.sldAngularDamping) {
             this.sldAngularDamping.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
@@ -206,7 +192,7 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ✅ الإضاءة المحيطية
+        //  الإضاءة المحيطية
         if (this.sldAmbient) {
             this.sldAmbient.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
@@ -220,7 +206,7 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ✅ عدد الكرات
+        //  عدد الكرات
         if (this.sldBallCount) {
             this.sldBallCount.addEventListener('input', (e) => {
                 const val = parseInt(e.target.value);
@@ -234,7 +220,7 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ✅ طول الخيط
+        //  طول الخيط
         if (this.sldStringLength) {
             this.sldStringLength.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
@@ -253,7 +239,7 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ✅ سرعة المحاكاة
+        //  سرعة المحاكاة
         if (this.sldTimeScale) {
             this.sldTimeScale.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
@@ -266,7 +252,7 @@ if (this.btnToggleControlTitle) {
         // 4️⃣ قوائم اختيار (Select)
         // ==========================================
 
-        // ✅ وضع الحركة
+        //  وضع الحركة
         if (this.selectMode) {
             this.selectMode.addEventListener('change', (e) => {
                 const mode = e.target.value;
@@ -277,7 +263,7 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ✅ وضع القاعدة
+        //  وضع القاعدة
         if (this.selectBase) {
             this.selectBase.addEventListener('change', (e) => {
                 const mode = e.target.value;
@@ -292,12 +278,12 @@ if (this.btnToggleControlTitle) {
         // 5️⃣ تعديل وزن الكرات
         // ==========================================
 
-        // ✅ تطبيق الوزن
+        //  تطبيق الوزن
         if (this.btnApplyMass) {
             this.btnApplyMass.addEventListener('click', () => this.applyMassChange());
         }
 
-        // ✅ تحديث الحالة عند تغيير الكرة
+        //  تحديث الحالة عند تغيير الكرة
         if (this.selectBall) {
             this.selectBall.addEventListener('change', () => this.updateMassStatus());
         }
@@ -305,7 +291,7 @@ if (this.btnToggleControlTitle) {
             this.selectMass.addEventListener('change', () => this.updateMassStatus());
         }
 
-        // ✅ إعادة تعيين الكتل
+        //  إعادة تعيين الكتل
         if (this.btnResetMasses) {
             this.btnResetMasses.addEventListener('click', () => this.resetAllMasses());
         }
@@ -314,7 +300,7 @@ if (this.btnToggleControlTitle) {
         // 6️⃣ التحكم بالماوس
         // ==========================================
 
-        // ✅ حساسية الماوس
+        //  حساسية الماوس
         if (this.sldMouseSens) {
             this.sldMouseSens.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
@@ -325,14 +311,14 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ✅ إظهار مسار السحب
+        //   إظهار مسار السحب
         if (this.chkShowPath) {
             this.chkShowPath.addEventListener('change', (e) => {
                 Config.mouseControl.showPath = e.target.checked;
             });
         }
 
-        // ✅ إظهار الزاوية
+        //  إظهار الزاوية
         if (this.chkShowAngle) {
             this.chkShowAngle.addEventListener('change', (e) => {
                 Config.mouseControl.showAngle = e.target.checked;
@@ -343,7 +329,7 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ✅ سرعة الارتداد
+        //  سرعة الارتداد
         if (this.sldReturnSpeed) {
             this.sldReturnSpeed.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
@@ -354,9 +340,6 @@ if (this.btnToggleControlTitle) {
             });
         }
 
-        // ==========================================
-        // 7️⃣ التحكم بالصوت
-        // ==========================================
 
         if (this.btnToggleSound) {
             this.btnToggleSound.addEventListener('click', () => {
@@ -380,9 +363,6 @@ if (this.btnToggleControlTitle) {
         }
     }
 
-    // ============================================
-    // ✅ دوال تعديل الوزن
-    // ============================================
 
     applyMassChange() {
     if (!this.simManager || !this.simManager.balls) {
@@ -395,25 +375,25 @@ if (this.btnToggleControlTitle) {
     const baseMass = Config.balls.defaultMass || 1.0;
     const newMass = baseMass * massMultiplier;
 
-    // ✅ جلب الكرة المحددة
+
     const ball = this.simManager.balls[ballIndex];
     if (!ball) {
         console.warn('الكرة غير موجودة');
         return;
     }
 
-    // ✅ 1. تغيير الكتلة وتحديث نصف القطر
+
     const newRadius = ball.setMass(newMass);
 
-    // ✅ 2. حفظ الكتلة المخصصة
+
     if (this.simManager.setCustomMass) {
         this.simManager.setCustomMass(ballIndex, newMass);
     }
 
-    // ✅ 3. تحديث الشكل البصري للكرة (إعادة بناء المجسم)
+
     this.simManager.updateBallSize(ball, newRadius);
 
-    // ✅ 4. تحديث واجهة المستخدم
+
     this.updateMassStatus();
 
     console.log(`✅ تم تغيير الكرة ${ballIndex + 1}: الكتلة = ${newMass.toFixed(2)} كغ، نصف القطر = ${newRadius.toFixed(3)} م`);
@@ -461,9 +441,7 @@ if (this.btnToggleControlTitle) {
         console.log('🔄 تم إعادة تعيين جميع الكتل إلى القيم الافتراضية');
     }
 
-    // ============================================
-    // ✅ مزامنة القيم مع Config
-    // ============================================
+
 
     syncSlidersWithConfig() {
         if (this.selectBase) {
@@ -525,7 +503,7 @@ if (this.btnToggleControlTitle) {
             }
         }
 
-        // ✅ مزامنة الصوت
+
         if (this.sldSoundVolume && this.soundManager) {
             this.sldSoundVolume.value = this.soundManager.volume * 100;
             if (this.lblSoundVolume) this.lblSoundVolume.innerText = Math.round(this.soundManager.volume * 100) + '%';
@@ -540,7 +518,7 @@ if (this.btnToggleControlTitle) {
 
 
         setTimeout(() => {
-    // لوحة البيانات
+
     const dataPanel = document.getElementById('data-panel');
     if (dataPanel && this.btnToggleDataTitle) {
         const isCollapsed = dataPanel.classList.contains('collapsed-up');
@@ -551,7 +529,7 @@ if (this.btnToggleControlTitle) {
             toggleBtn.style.display = isCollapsed ? 'none' : 'flex';
         }
     }
-    // لوحة التحكم
+
     const controlPanel = document.getElementById('control-panel');
     if (controlPanel && this.btnToggleControlTitle) {
         const isCollapsed = controlPanel.classList.contains('collapsed-up');
@@ -565,9 +543,7 @@ if (this.btnToggleControlTitle) {
 }, 100);
     }
 
-    // ============================================
-    // ✅ دالة updateSliders (احتياطية)
-    // ============================================
+
 
     updateSliders(g, r, ad) {
         Config.physics.gravity = g;

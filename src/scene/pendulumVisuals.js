@@ -3,17 +3,14 @@
 import * as THREE from 'three';
 import { Config } from '../config/config.js';
 
-/**
- * بناء الشكل البصري للكرة (المجسم، المادة، الخيوط)
- * مسؤولية: الشخص الثاني (3D Scene)
- */
+
 export function buildBallVisuals(ball) {
     const scene = ball.scene;
     const radius = ball.radius;
     const pivot = ball.pivot;
     const position = ball.position;
 
-    // ✅ الكرة
+
     const ballGeo = new THREE.SphereGeometry(radius, 64, 64);
     ball.material = new THREE.MeshStandardMaterial({
         color: 0xb58a44,
@@ -28,7 +25,7 @@ export function buildBallVisuals(ball) {
     ball.mesh.userData = { ballId: ball.id };
     scene.add(ball.mesh);
 
-    // ✅ حلقة توصيل فضية براقة
+
     const ringGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.12, 24);
     const ringMat = new THREE.MeshStandardMaterial({
         color: 0xd0d0d0,
@@ -40,7 +37,7 @@ export function buildBallVisuals(ball) {
     ball.topRing.receiveShadow = true;
     scene.add(ball.topRing);
 
-    // ✅ خيوط رمادية فضية رفيعة (خطوط مزدوجة)
+
     const lineMat = new THREE.LineBasicMaterial({ color: 0xb8b8b8 });
 
     const stringGeo1 = new THREE.BufferGeometry().setFromPoints([
@@ -68,7 +65,7 @@ export function rebuildBallMesh(ball, newRadius) {
     const oldCastShadow = ball.mesh.castShadow;
     const oldReceiveShadow = ball.mesh.receiveShadow;
 
-    // 1. حذف المجسم القديم
+
     if (ball.mesh) {
         ball.mesh.geometry.dispose();
         if (ball.mesh.parent) {
@@ -76,7 +73,7 @@ export function rebuildBallMesh(ball, newRadius) {
         }
     }
 
-    // 2. إنشاء مجسم جديد بالحجم الجديد
+
     const ballGeo = new THREE.SphereGeometry(newRadius, 64, 64);
     const newMesh = new THREE.Mesh(ballGeo, oldMaterial);
     newMesh.castShadow = oldCastShadow;
@@ -87,14 +84,11 @@ export function rebuildBallMesh(ball, newRadius) {
     ball.mesh = newMesh;
     scene.add(newMesh);
 
-    // 3. تحديث الحلقة والخيوط
+
     updateBallVisuals(ball);
 }
 
-/**
- * بناء مساعدات التفاعل (مسار السحب المتوقع)
- * مسؤولية: الشخص الثاني (3D Scene)
- */
+
 export function buildInteractionHelpers(ball) {
     const scene = ball.scene;
     const pivot = ball.pivot;
@@ -120,17 +114,14 @@ export function buildInteractionHelpers(ball) {
     scene.add(ball.predictedPath);
 }
 
-/**
- * تحديث الشكل البصري للكرة (الموضع، الخيوط)
- * مسؤولية: الشخص الثاني (3D Scene)
- */
+
 export function updateBallVisuals(ball) {
-    // تحديث موقع الكرة
+
     ball.mesh.position.copy(ball.position);
     ball.topRing.position.copy(ball.position);
     ball.topRing.position.y += ball.radius;
 
-    // تحديث الخيط الأول
+
     const pos1 = ball.stringLine1.geometry.attributes.position.array;
     pos1[0] = ball.pivot.x;
     pos1[1] = ball.pivot.y;
@@ -140,7 +131,7 @@ export function updateBallVisuals(ball) {
     pos1[5] = ball.position.z;
     ball.stringLine1.geometry.attributes.position.needsUpdate = true;
 
-    // تحديث الخيط الثاني
+
     const pos2 = ball.stringLine2.geometry.attributes.position.array;
     pos2[0] = ball.pivot.x;
     pos2[1] = ball.pivot.y;
@@ -151,10 +142,7 @@ export function updateBallVisuals(ball) {
     ball.stringLine2.geometry.attributes.position.needsUpdate = true;
 }
 
-/**
- * دوال الحالة (تأثيرات بصرية)
- * مسؤولية: الشخص الثاني (3D Scene)
- */
+
 export function setHoverState(ball, isHovered) {
     if (ball.isBeingDragged) return;
     if (isHovered) {
@@ -176,10 +164,7 @@ export function setSelectedState(ball, isSelected) {
     }
 }
 
-/**
- * إزالة الكرة من المشهد (التنظيف)
- * مسؤولية: الشخص الثاني (3D Scene)
- */
+
 export function removeBallVisuals(ball) {
     const scene = ball.scene;
     if (ball.mesh) {

@@ -7,7 +7,7 @@ export const Config = {
         stringLength: 4.4,
         timeScale: 4.5,
         subSteps: 80,
-        mode: '2d'  // القيمة الافتراضية 2D
+        mode: '2d'  
     },
     balls: {
         count: 6,

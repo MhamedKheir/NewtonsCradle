@@ -5,27 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>بندول نيوتن - المحاكاة التفاعلية</title>
 
-    <!-- ✅ Vite: استيراد CSS مباشرة (بدون CDN) -->
     <link rel="stylesheet" href="/style.css" />
 
-    <!-- Google Fonts (نفسها) -->
+
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Cairo:wght@300;400;700&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <!-- Canvas Viewport / شاشة العرض ثلاثية الأبعاد -->
+
     <div id="canvas-container"></div>
 
-    <!-- UI Panels / الواجهات اللوحية -->
 
-    <!-- ============================================ -->
-    <!-- ✅ Left Panel: Analytics (معدلة) -->
-    <!-- ============================================ -->
+
+
     <div id="data-panel" class="panel glass-panel left-panel">
       <div class="panel-content">
-        <!-- ✅ العنوان + زر الطي -->
         <div class="panel-header">
           <h2>التحليلات المباشرة</h2>
           <button id="btn-toggle-data-title" class="panel-toggle-title">
@@ -56,9 +52,7 @@
       </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- ✅ Right Panel: Controls (معدلة) -->
-    <!-- ============================================ -->
+
     <div id="control-panel" class="panel glass-panel right-panel">
       <div class="panel-content">
         <!-- ✅ العنوان + زر الطي -->
@@ -153,7 +147,6 @@
             </div>
           </div>
 
-          <!-- عدد الكرات -->
           <div class="control-group">
             <label>عدد الكرات: <span id="lbl-ball-count">6</span></label>
             <input
@@ -166,20 +159,18 @@
             />
           </div>
 
-          <!-- طول الخيط -->
           <div class="control-group">
             <label>طول الخيط: <span id="lbl-string-length">4.4</span> م</label>
             <input
               type="range"
               id="sld-string-length"
               min="1"
-              max="8"
+              max="5"
               step="0.1"
               value="4.4"
             />
           </div>
 
-          <!-- سرعة المحاكاة -->
           <div class="control-group">
             <label>سرعة المحاكاة: <span id="lbl-time-scale">4.5</span>x</label>
             <input
@@ -261,7 +252,6 @@
             />
           </div>
 
-          <!-- 🔊 التحكم بالصوت -->
           <div class="control-group">
             <label
               style="
@@ -365,8 +355,6 @@
         </div>
       </div>
     </div>
-
-    <!-- ✅ Vite: استيراد الملف الرئيسي -->
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
